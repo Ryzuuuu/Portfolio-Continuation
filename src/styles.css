@@ -265,7 +265,7 @@ main:focus { outline: none; }
 
 .zoom-fx { position: absolute; z-index: 6; left: 0; right: 0; top: calc(-1 * var(--pin-top, 0px)); height: var(--vh, 100svh); pointer-events: none; }
 .hero-stage:not([data-zoom="on"]) .zoom-fx { display: none; }
-.zoom-fx__hud { position: absolute; inset: calc(var(--header-h) * .25 + 10px) 18px 18px; opacity: var(--hud, 0); color: #e95438; }
+.zoom-fx__hud { position: absolute; z-index: 1; inset: calc(var(--header-h) * .25 + 10px) 18px 18px; opacity: var(--hud, 0); color: #e95438; }
 .zoom-fx__corner { position: absolute; width: 38px; height: 38px; border: 0 solid currentColor; }
 .zoom-fx__corner--tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
 .zoom-fx__corner--tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
@@ -281,7 +281,60 @@ main:focus { outline: none; }
 .zoom-fx__reticle::before, .zoom-fx__reticle::after { content: ""; position: absolute; left: 50%; top: 50%; background: currentColor; translate: -50% -50%; }
 .zoom-fx__reticle::before { width: 170%; height: 1.5px; -webkit-mask-image: linear-gradient(90deg, #000 32%, transparent 32% 68%, #000 68%); mask-image: linear-gradient(90deg, #000 32%, transparent 32% 68%, #000 68%); }
 .zoom-fx__reticle::after { width: 1.5px; height: 170%; -webkit-mask-image: linear-gradient(#000 32%, transparent 32% 68%, #000 68%); mask-image: linear-gradient(#000 32%, transparent 32% 68%, #000 68%); }
-.zoom-fx__ink { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: var(--art-ink); opacity: calc(1 - var(--ink-lift, 0)); }
+.zoom-fx__ink { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; overflow: visible; fill: var(--art-ink); opacity: calc(1 - var(--ink-lift, 0)); }
+
+/* ── Impact frames ───────────────────────────────────────────────────────────────────
+   Four ~55ms frames as the camera locks on (260ms, stepped, never interpolated):
+   F1 negative + white lines + eye boxes · F2 red duotone + 見 + black lines ·
+   F3 stark manga print + heavy ink lines + red eye boxes · F4 afterimage fades out.
+   The frames filter the live, still-zooming hero (stepped CSS filters), so it never pauses.
+   One light/dark swing per pass, well under the WCAG three-flashes-a-second limit. */
+.impact { position: absolute; inset: 0; z-index: 3; display: none; overflow: hidden; }
+.hero-stage.is-impact .impact { display: block; }
+.hero-stage.is-impact > .hero-stage__pin { animation: impact-shake .36s linear; }
+.hero-stage.is-impact .hero { animation: impact-filter .26s step-end both; }
+.impact-defs { position: absolute; width: 0; height: 0; }
+.impact > * { position: absolute; opacity: 0; animation-duration: .26s; animation-fill-mode: both; animation-timing-function: step-end; }
+.impact__burst { left: var(--impact-x); top: var(--impact-y); width: var(--impact-reach); height: var(--impact-reach); translate: -50% -50%; overflow: visible; fill: currentColor; }
+.impact__burst--light { animation-name: impact-lines; }
+.impact__burst--ink { color: #171715; animation-name: impact-ink; }
+.impact__glyph { left: var(--impact-x); top: var(--impact-y); translate: -50% -52%; font: 400 min(62vmin, 520px)/1 var(--display-jp); color: #f2eee5; -webkit-text-stroke: .025em #171715; paint-order: stroke fill; text-shadow: .035em .035em 0 #171715; animation-name: impact-glyph; }
+.impact__eye { width: var(--eye-size); aspect-ratio: 1.25; translate: -50% -50%; border: 3px solid currentColor; animation-name: impact-eye; }
+.impact__eye--left { left: var(--eye-lx); top: var(--eye-ly); }
+.impact__eye--right { left: var(--eye-rx); top: var(--eye-ry); }
+.impact__eye b { position: absolute; left: -3px; bottom: calc(100% + 4px); padding: 3px 6px; color: #171715; font-size: 10px; font-weight: 500; letter-spacing: .08em; white-space: nowrap; animation: impact-eye-label .26s step-end both; }
+
+@keyframes impact-filter {
+  0% { filter: invert(1) grayscale(1) contrast(2.3); }
+  21% { filter: invert(1) grayscale(1) contrast(2.3) url(#impact-duotone); }
+  42% { filter: grayscale(1) contrast(3.2) brightness(1.08); }
+  63%, 100% { filter: none; }
+}
+@keyframes impact-lines {
+  0% { opacity: 1; color: #f2eee5; scale: 1; rotate: 0deg; }
+  21% { opacity: 1; color: #171715; scale: 1.12; rotate: 7deg; }
+  42%, 100% { opacity: 0; }
+}
+@keyframes impact-ink {
+  0%, 21% { opacity: 0; }
+  42% { opacity: 1; scale: 1; }
+  63% { opacity: .55; scale: 1.18; animation-timing-function: ease-out; }
+  100% { opacity: 0; scale: 1.3; }
+}
+@keyframes impact-glyph { 0% { opacity: 0; scale: 1.25; rotate: -9deg; } 21% { opacity: 1; scale: 1; rotate: -6deg; } 42%, 100% { opacity: 0; } }
+@keyframes impact-eye {
+  0% { opacity: 1; color: #f2eee5; scale: 1.7; }
+  21% { opacity: 0; }
+  42% { opacity: 1; color: #e95438; scale: 1; }
+  63% { opacity: 1; scale: 1.04; animation-timing-function: ease-out; }
+  100% { opacity: 0; scale: 1.1; }
+}
+@keyframes impact-eye-label { 0% { background: #f2eee5; } 42%, 100% { background: #e95438; } }
+@keyframes impact-shake {
+  0% { translate: 9px -6px; } 12% { translate: -11px 7px; } 24% { translate: 8px 5px; }
+  36% { translate: -6px -7px; } 50% { translate: 4px 3px; } 66% { translate: -2px -2px; }
+  82% { translate: 1px 1px; } 100% { translate: 0 0; }
+}
 
 /* Detection overlay, positioned in the portrait SVG's own proportions (480 × 560). */
 .detect { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
