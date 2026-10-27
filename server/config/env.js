@@ -155,7 +155,7 @@ function describeMongoUri(uri) {
 const loaded = loadEnv();
 
 export const env = loaded.env;
-export const envWarnings = loaded.warnings;
+const envWarnings = loaded.warnings;
 
 export function reportEnv(log = console) {
   const { mail } = env;
