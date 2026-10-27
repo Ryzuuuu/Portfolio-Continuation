@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { ArrowRight, Asterisk } from "lucide-react";
+import { Fragment } from "react";
 import { sectionShape } from "../lib/propTypes.js";
+import { CountUp } from "./CountUp.jsx";
 import { Doodle } from "./Doodle.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
@@ -30,7 +32,17 @@ export function AboutSection({ section, bio, stats }) {
           </span>
         </Reveal>
         <Reveal className="intro__text" delay={120}>
-          <p className="intro__lead">{bio.lead}</p>
+          {/* Words ink in one after another once the block is revealed (CSS stagger). */}
+          <p className="intro__lead">
+            {bio.lead.split(" ").map((word, index, words) => (
+              <Fragment key={`${word}-${index}`}>
+                <span className="ink-word" style={{ "--i": index }}>
+                  {word}
+                </span>
+                {index < words.length - 1 && " "}
+              </Fragment>
+            ))}
+          </p>
           {bio.paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
@@ -44,8 +56,8 @@ export function AboutSection({ section, bio, stats }) {
           <Reveal key={stat.label} delay={index * 80}>
             <div className="stat">
               <span className="stat__number">
-                {stat.value}
-                <span>{stat.suffix}</span>
+                <CountUp value={stat.value} />
+                <span className="stat__suffix">{stat.suffix}</span>
               </span>
               <span className="stat__label mono">{stat.label}</span>
             </div>
