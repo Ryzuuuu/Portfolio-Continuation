@@ -1,5 +1,5 @@
 // Mirrors the Message schema's maxlength values.
-export const CONTACT_LIMITS = { name: 80, email: 254, message: 3000 };
+const CONTACT_LIMITS = { name: 80, email: 254, message: 3000 };
 
 // The WHATWG <input type="email"> pattern, with a dot required in the domain. It rejects
 // the quotes, angle brackets and commas that could make a mail header mean something else.

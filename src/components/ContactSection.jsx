@@ -57,7 +57,7 @@ export function ContactSection({ section, profile }) {
             </a>
           </div>
         </Reveal>
-        <Reveal className="contact__form-wrap" delay={100}>
+        <Reveal delay={100}>
           <ContactForm />
         </Reveal>
       </div>

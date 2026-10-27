@@ -2,7 +2,7 @@
 // Set VITE_API_BASE_URL at build time when the API lives on another origin.
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
 
-export class ContactRequestError extends Error {
+class ContactRequestError extends Error {
   constructor(message, fields = {}) {
     super(message);
     this.name = "ContactRequestError";
