@@ -74,6 +74,7 @@ describe("ContactForm", () => {
     respond(await jsonResponse(201, { message: "Message received. Thanks for reaching out!" }));
 
     expect(await screen.findByRole("status")).toHaveTextContent("Message received.");
+    expect(document.querySelector(".form-stamp")).toHaveAttribute("aria-hidden", "true");
     expect(submitButton()).toHaveTextContent("SEND THE MESSAGE");
     expect(screen.getByLabelText("YOUR NAME")).toHaveValue("");
 
