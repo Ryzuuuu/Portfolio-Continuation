@@ -3,7 +3,6 @@ export function notFound(_request, response) {
 }
 
 // Express recognises error handlers by their four-argument signature.
-// eslint-disable-next-line no-unused-vars
 export function errorHandler(error, _request, response, next) {
   if (response.headersSent) return next(error);
 

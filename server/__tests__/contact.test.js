@@ -66,12 +66,16 @@ describe("POST /api/contact: success paths", () => {
   });
 
   it("succeeds when the notification fails but MongoDB stored the message", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(Object.assign(new Error("boom"), { code: "EAUTH" }));
+    vi.mocked(mail.sendContactNotification).mockRejectedValue(
+      Object.assign(new Error("boom"), { code: "EAUTH" })
+    );
 
     const response = await post(app, valid);
 
     expect(response.status).toBe(201);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Notification email failed"));
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Notification email failed")
+    );
   });
 
   it("succeeds email-only when MongoDB isn't connected", async () => {

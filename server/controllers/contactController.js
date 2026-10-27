@@ -55,7 +55,9 @@ export async function submitContact(request, response, next) {
       });
     }
 
-    if (!emailed) console.warn(`[contact] Message from ${contact.email} is stored in MongoDB only.`);
+    if (!emailed) {
+      console.warn(`[contact] Message from ${contact.email} is stored in MongoDB only.`);
+    }
     return response.status(201).json({ message: "Message received. Thanks for reaching out!" });
   } catch (error) {
     return next(error);

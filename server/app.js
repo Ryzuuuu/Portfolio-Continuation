@@ -26,7 +26,11 @@ export function createApp() {
   app.get("/api/health", (_request, response) => {
     let database = "not configured";
     if (isDbConfigured()) database = isDbConnected() ? "connected" : "disconnected";
-    response.json({ status: "ok", database, mail: isMailConfigured() ? "configured" : "not configured" });
+    response.json({
+      status: "ok",
+      database,
+      mail: isMailConfigured() ? "configured" : "not configured",
+    });
   });
 
   app.use("/api/contact", createContactRouter());

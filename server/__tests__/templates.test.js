@@ -24,7 +24,9 @@ describe("contactNotificationEmail", () => {
 
     expect(html).not.toContain("<script>");
     expect(html).not.toContain("<img");
-    expect(html).toContain("&lt;script&gt;steal()&lt;/script&gt;<br>line two &amp; &#39;quotes&#39;");
+    expect(html).toContain(
+      "&lt;script&gt;steal()&lt;/script&gt;<br>line two &amp; &#39;quotes&#39;"
+    );
     expect(text).toContain(hostile.message);
     expect(subject).toBe(`New portfolio message from ${hostile.name}`);
   });
@@ -32,7 +34,10 @@ describe("contactNotificationEmail", () => {
 
 describe("autoReplyEmail", () => {
   it("escapes the name and never echoes the visitor's message", () => {
-    const { html, text, subject } = autoReplyEmail({ name: hostile.name, ownerName: "Neelabja Mukhopadhyay" });
+    const { html, text, subject } = autoReplyEmail({
+      name: hostile.name,
+      ownerName: "Neelabja Mukhopadhyay",
+    });
 
     expect(html).not.toContain("<img");
     expect(html).toContain("Hi &lt;img");
