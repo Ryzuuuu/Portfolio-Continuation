@@ -1,6 +1,6 @@
 import { rateLimit } from "express-rate-limit";
 
-export const CONTACT_RATE_LIMIT = { windowMs: 15 * 60 * 1000, limit: 5 };
+const CONTACT_RATE_LIMIT = { windowMs: 15 * 60 * 1000, limit: 5 };
 
 /** A fresh limiter per call, so every app instance (and test) gets its own counter. */
 export function createContactRateLimiter() {

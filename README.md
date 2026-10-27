@@ -1,6 +1,14 @@
 # Neelabja Mukhopadhyay — Portfolio
 
-A responsive, manga-inspired portfolio for AI/ML engineer Neelabja Mukhopadhyay, built with React, Vite, Express, and MongoDB. The front end uses lightweight CSS and native browser APIs for scroll reveals, a reading-progress indicator, and pointer-responsive project cards. The contact form emails you through Gmail and, when MongoDB is configured, keeps a backup copy of every message.
+A responsive, manga-inspired portfolio for AI/ML engineer Neelabja Mukhopadhyay, built with React, Vite, Express, and MongoDB. The front end is plain CSS plus native browser APIs: no animation or UI libraries. The contact form emails you through Gmail and, when MongoDB is configured, keeps a backup copy of every message.
+
+## What's on the page
+
+- **Hero**: a manga splash page seen through a camera. Headline lines rise out of slots, speed lines and a ジーッ sound effect frame the portrait, a detection box locks onto the face, and a live CCTV clock ticks in Kolkata time.
+- **The first scroll**: the hero pins while the camera zooms into the character's eyes. Manga impact frames flash as it locks on, ink blooms out of both eyes, and then lifts to reveal the next section. Pausing halfway finishes the move in the direction you were scrolling.
+- **Sections**: kanji chapter titles, headings that rise line by line with hand-drawn doodles, counting stats, tilting project cards, a timeline that fills as you read, and a marquee that speeds up with your scrolling.
+- **Light and dark themes**: follows the system until you pick one, remembers the choice, and switches with an iris wipe.
+- **Accessibility**: everything is keyboard-reachable with visible focus, colours meet WCAG AA, and with reduced motion on, every animation (the scroll zoom included) is switched off.
 
 ## Getting started
 
@@ -114,12 +122,19 @@ src/
     projects.js                    project cards (repo links optional)
     experience.js                  timeline, education, certifications
     skills.js                      toolbox pills
-  components/                      Header, Hero, AboutSection, ProjectsSection, ProjectCard,
-                                   ExperienceSection, ToolboxSection, ContactSection, ContactForm,
-                                   Footer, MangaPortrait, Reveal, SpotlightCard, SectionKicker,
-                                   ReadingProgress (+ __tests__/)
-  hooks/                           useScrollReveal, useReadingProgress
-  lib/                             contact API client, client-side validation, PropTypes shapes
+  components/                      one file per section and building block (+ __tests__/)
+    hero/                          HeroStage (scroll zoom + impact frames), DetectionOverlay,
+                                   ScrambleText, SpeedLines
+  hooks/
+    useEyeZoom.js                  the first-scroll zoom, ink and impact-frame timing
+    useTheme.js                    light/dark theme, persistence, iris-wipe transition
+    useScrollReveal.js             reveal-on-scroll for [data-reveal] blocks
+    useScrollProgress.js           how far an element has scrolled (timeline rail)
+    useVelocityMarquee.js          the scroll-reactive marquee
+    usePointerTilt.js              hero tilt and parallax
+    useReadingProgress.js          the reading-progress bar
+  lib/                             contact API client and validation, burst-line generator,
+                                   motion preferences, formatting, PropTypes shapes
   styles.css                       design tokens and all styles
 public/                            favicon.svg/.ico, apple-touch-icon.png, og-image.png
 server/
@@ -158,5 +173,6 @@ server/
 
 - Content lives in `src/data/`: profile, bio, stats, contact address and socials in `profile.js`; projects in `projects.js`; jobs, education and certifications in `experience.js`; skills in `skills.js`.
 - Add, rename or reorder sections in `src/data/nav.js`. The header nav and each section's numbered kicker both read from it.
-- Tune the color tokens near the top of `src/styles.css`. `--muted` and `--red-text` are the AA-contrast variants used for small text.
+- Tune the color tokens near the top of `src/styles.css`, light theme first, then the `[data-theme="dark"]` overrides. `--muted` and `--red-text` are the AA-contrast variants used for small text.
+- Each section's kanji chapter title is the `kanji` field in `src/data/nav.js`. The Japanese display font is loaded as a small subset in `index.html`, so if you add new characters, add them to that font URL too.
 - Update the page title, description and social-card copy in `index.html`, and regenerate `public/og-image.png` if the name or headline changes.

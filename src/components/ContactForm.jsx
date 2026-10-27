@@ -78,7 +78,7 @@ export function ContactForm() {
 
   return (
     <form
-      className={status.state === "success" ? "contact-form is-sent" : "contact-form"}
+      className="contact-form"
       onSubmit={handleSubmit}
       noValidate
       aria-labelledby="contact-form-title"
