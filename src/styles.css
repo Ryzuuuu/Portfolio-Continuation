@@ -47,6 +47,7 @@
   --art-paper: #f2eee5;
   --art-blue: #505be7;
 
+  --header-h: 82px;
   --mono: "DM Mono", monospace;
   --display-jp: "Dela Gothic One", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
   --ease-out: cubic-bezier(.2, .8, .2, 1);
@@ -129,16 +130,22 @@ main:focus { outline: none; }
 }
 
 .site-header {
-  height: 82px;
+  height: var(--header-h);
   padding: 0 6.1%;
   display: flex;
   align-items: center;
   gap: 16px;
   border-bottom: 1px solid var(--line);
-  position: relative;
+  position: fixed;
+  inset: 0 0 auto 0;
   z-index: 20;
   background: var(--paper);
+  transition: translate .5s var(--ease-out), background-color .3s, box-shadow .3s;
 }
+/* Slides away while reading down, returns on the way up (see Header.jsx). */
+.site-header.is-hidden { translate: 0 -101%; }
+.site-header:focus-within { translate: none; }
+.site-header.is-scrolled { background: color-mix(in srgb, var(--paper) 84%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 14px 30px -26px rgba(0, 0, 0, .5); }
 .wordmark { display: flex; align-items: center; gap: 11px; }
 .wordmark__icon {
   width: 34px; height: 34px; display: grid; place-items: center;
@@ -173,7 +180,7 @@ main:focus { outline: none; }
    panel drops 350 · speed lines 500 · burst 950 · SFX 1050 · underline 1150 ·
    detection locks 1450 · score 1750. Every animation uses `backwards` fill, so the
    resting state is the plain style: nothing stays hidden if animations don't run. */
-.hero { min-height: 700px; padding-top: 29px; padding-bottom: 24px; position: relative; overflow: hidden; isolation: isolate; --tilt-x: 0; --tilt-y: 0; }
+.hero { flex: 1 0 auto; display: flex; flex-direction: column; min-height: 700px; padding-top: calc(var(--header-h) + 29px); padding-bottom: 24px; position: relative; overflow: hidden; isolation: isolate; background: var(--paper); --tilt-x: 0; --tilt-y: 0; }
 /* Screentone shading fading out from the top-left corner. */
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(var(--tone) 1.15px, transparent 1.65px); background-size: 9px 9px; -webkit-mask-image: radial-gradient(115% 85% at 0% 0%, #000, transparent 60%); mask-image: radial-gradient(115% 85% at 0% 0%, #000, transparent 60%); }
 .hero__meta, .hero__foot, .section-kicker {
@@ -186,7 +193,7 @@ main:focus { outline: none; }
 .hero__clock { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
 .hero__clock i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px rgba(233, 84, 56, .18); animation: rec 2s ease-in-out infinite; }
 
-.hero__grid { display: grid; grid-template-columns: 1.1fr .9fr; min-height: 555px; align-items: center; }
+.hero__grid { flex: 1; display: grid; grid-template-columns: 1.1fr .9fr; min-height: 555px; align-items: center; }
 .hero__copy { position: relative; z-index: 2; padding: 12px 0 17px; }
 .eyebrow { display: flex; align-items: center; gap: 9px; font: 9px var(--mono); letter-spacing: .035em; }
 .eyebrow__line { display: inline-block; width: 22px; height: 1px; background: var(--red); }
@@ -232,8 +239,46 @@ main:focus { outline: none; }
 .portrait-note { position: absolute; z-index: 4; bottom: 29px; right: -23px; display: flex; align-items: center; gap: 7px; padding: 9px 12px; background: var(--art-ink); color: var(--art-paper); font: 8px var(--mono); rotate: -3deg; animation: slap-in .45s 1.3s var(--ease-spring) backwards; }
 .portrait-note svg { color: var(--yellow); }
 .portrait-stamp { position: absolute; z-index: 4; top: 44%; right: -26px; width: 42px; height: 42px; display: grid; place-content: center; background: var(--red); color: var(--art-paper); font: 12px/1.1 var(--display-jp); text-align: center; rotate: 12deg; border: 1px solid var(--art-ink); animation: stamp .5s 1.6s cubic-bezier(.55, 0, .75, .3) backwards; }
+.portrait-eye { position: absolute; width: 0; height: 0; pointer-events: none; }
+.portrait-eye--left { left: 41.98%; top: 38.57%; }
+.portrait-eye--right { left: 60.31%; top: 38.3%; }
 .hero__vertical-label { position: absolute; z-index: 3; bottom: 62px; right: -34px; writing-mode: vertical-rl; font-size: 9px; color: var(--muted); animation: fade-in .8s 1.5s backwards; }
 .hero__scribble { position: absolute; z-index: 3; top: 55%; left: -30px; font-size: 48px; color: var(--blue); rotate: 12deg; transition: rotate 1s var(--ease-out); animation: scribble-in .6s 1.15s var(--ease-spring) backwards; }
+
+
+/* ── Hero stage: the first scroll zooms into the eyes (driven by useEyeZoom) ─────────── */
+.hero-stage { position: relative; z-index: 2; }
+.hero-stage + * { position: relative; z-index: 1; }
+.hero-stage__pin { position: sticky; top: var(--pin-top, 0px); min-height: 100svh; display: flex; flex-direction: column; overflow: hidden; }
+/* Headline and chrome fall away fast; the portrait carries the push-in. */
+.hero-stage[data-zoom="on"] :is(.hero__copy, .hero__meta, .hero__foot, .hero__vertical-label) { opacity: calc(1 - var(--zp, 0) * 4.5); }
+.hero-stage[data-zoom="on"] :is(.portrait-note, .portrait-frame__caption, .detect__label, .detect__track) { opacity: calc(1 - var(--zp, 0) * 3); }
+.hero-stage:not([data-phase="rest"]) .hero { --tilt-x: 0 !important; --tilt-y: 0 !important; }
+.hero-stage.is-measuring .hero__tilt { transition: none !important; }
+.hero-stage:is([data-phase="reveal"], [data-phase="done"]) .hero { visibility: hidden; }
+.hero-stage:is([data-phase="reveal"], [data-phase="done"]) .hero-stage__pin { pointer-events: none; }
+/* Content of the next section waits under the ink, then reveals as it lifts. */
+.is-covered .reveal { opacity: 0 !important; transform: translateY(22px) !important; transition-duration: 0s !important; }
+
+.zoom-fx { position: absolute; z-index: 6; left: 0; right: 0; top: calc(-1 * var(--pin-top, 0px)); height: var(--vh, 100svh); pointer-events: none; }
+.hero-stage:not([data-zoom="on"]) .zoom-fx { display: none; }
+.zoom-fx__hud { position: absolute; inset: calc(var(--header-h) * .25 + 10px) 18px 18px; opacity: var(--hud, 0); color: #e95438; }
+.zoom-fx__corner { position: absolute; width: 38px; height: 38px; border: 0 solid currentColor; }
+.zoom-fx__corner--tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.zoom-fx__corner--tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.zoom-fx__corner--bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.zoom-fx__corner--br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.zoom-fx__rec, .zoom-fx__readout, .zoom-fx__target { position: absolute; display: flex; align-items: center; gap: 7px; padding: 5px 8px 4px; background: rgba(242, 238, 229, .9); color: #171715; font-size: 10px; letter-spacing: .1em; white-space: nowrap; }
+.zoom-fx__rec { top: 12px; right: 50px; }
+.zoom-fx__rec i { width: 7px; height: 7px; border-radius: 50%; background: #e95438; animation: rec 1s steps(1) infinite; }
+.zoom-fx__readout { bottom: 12px; left: 50px; }
+.zoom-fx__readout b, .zoom-fx__target b { color: #b53a22; font-weight: 500; font-variant-numeric: tabular-nums; }
+.zoom-fx__target { bottom: 12px; right: 50px; }
+.zoom-fx__reticle { position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; translate: -50% -50%; border: 1.5px solid currentColor; border-radius: 50%; scale: calc(1.8 - var(--hud, 0) * .8); }
+.zoom-fx__reticle::before, .zoom-fx__reticle::after { content: ""; position: absolute; left: 50%; top: 50%; background: currentColor; translate: -50% -50%; }
+.zoom-fx__reticle::before { width: 170%; height: 1.5px; -webkit-mask-image: linear-gradient(90deg, #000 32%, transparent 32% 68%, #000 68%); mask-image: linear-gradient(90deg, #000 32%, transparent 32% 68%, #000 68%); }
+.zoom-fx__reticle::after { width: 1.5px; height: 170%; -webkit-mask-image: linear-gradient(#000 32%, transparent 32% 68%, #000 68%); mask-image: linear-gradient(#000 32%, transparent 32% 68%, #000 68%); }
+.zoom-fx__ink { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: var(--art-ink); opacity: calc(1 - var(--ink-lift, 0)); }
 
 /* Detection overlay, positioned in the portrait SVG's own proportions (480 × 560). */
 .detect { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
@@ -498,11 +543,12 @@ main:focus { outline: none; }
 
 @media (max-width: 650px) {
   html { scroll-padding-top: 70px; }
-  .site-header { height: 68px; }
+  :root { --header-h: 68px; }
   .page-pad, .section-pad { padding-left: 6%; padding-right: 6%; }
-  .hero { padding-top: 20px; }
+  .hero { padding-top: calc(var(--header-h) + 20px); }
   .hero__meta { font-size: 8px; }
   .hero__scroll { display: none; }
+  .zoom-fx__target { top: 12px; right: auto; bottom: auto; left: 50px; }
   .hero__grid { display: flex; flex-direction: column; align-items: stretch; padding-top: 38px; }
   .hero__copy { padding: 0; }
   .eyebrow { font-size: 8px; }
