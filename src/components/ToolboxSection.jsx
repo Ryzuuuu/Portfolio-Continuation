@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import { ArrowUpRight, Asterisk } from "lucide-react";
+import { useRef } from "react";
+import { useVelocityMarquee } from "../hooks/useVelocityMarquee.js";
 import { sectionShape } from "../lib/propTypes.js";
 import { Doodle } from "./Doodle.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
@@ -9,6 +11,9 @@ import { SectionKicker } from "./SectionKicker.jsx";
 const MARQUEE_REPEATS = 4;
 
 export function ToolboxSection({ section, skills }) {
+  const marqueeRef = useRef(null);
+  useVelocityMarquee(marqueeRef);
+
   return (
     <section className="toolbox section-pad" id={section.id} aria-labelledby="toolbox-title">
       <SectionKicker section={section} />
@@ -33,8 +38,8 @@ export function ToolboxSection({ section, skills }) {
             cloud, and web to take ideas from experiment to dependable service.
           </p>
           <ul className="skill-list" aria-label="Skills">
-            {skills.map((skill) => (
-              <li className="skill-pill" key={skill}>
+            {skills.map((skill, index) => (
+              <li className="skill-pill" key={skill} style={{ "--i": index }}>
                 <i aria-hidden="true" />
                 {skill}
               </li>
@@ -53,7 +58,7 @@ export function ToolboxSection({ section, skills }) {
           </div>
         </Reveal>
       </div>
-      <div className="marquee">
+      <div className="marquee" ref={marqueeRef}>
         <p className="visually-hidden">Build with intent, test with care, ship what matters.</p>
         <div className="marquee__track" aria-hidden="true">
           {Array.from({ length: MARQUEE_REPEATS }, (_, index) => (

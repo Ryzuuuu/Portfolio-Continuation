@@ -363,6 +363,9 @@ main:focus { outline: none; }
 
 /* Hover details, only where hover is real (no sticky :hover after a tap). */
 @media (hover: hover) {
+  .skill-pill:hover::after { opacity: 1; scale: 1; }
+  :is(.education-card, .cert-card):hover { translate: 0 -3px; box-shadow: 6px 6px 0 var(--line); }
+  :is(.education-card, .cert-card):hover::after { width: 26px; height: 26px; }
   .project-card:hover .project-card__speech { animation: bubble-pop .5s var(--ease-spring); }
   .hero__visual:hover .hero__speedlines { opacity: calc(var(--speedlines) * 1.7); }
   .hero__visual:hover .speedlines__frame--a { animation: boil-a .26s steps(1) infinite; }
@@ -512,8 +515,16 @@ main:focus { outline: none; }
 .experience h2 { font-size: clamp(53px, 7vw, 88px); letter-spacing: -.085em; line-height: .91; margin: 27px 0 0; }
 .experience h2 em { color: var(--blue); font-family: Georgia, serif; font-weight: 400; letter-spacing: -.1em; }
 .experience__intro { max-width: 330px; margin: 0 0 7px; font-size: 13px; line-height: 1.75; color: var(--muted); }
-.timeline { border-top: 1px solid var(--line); }
-.timeline__item { display: grid; grid-template-columns: .35fr 1fr; gap: 8%; padding: 25px 2%; border-bottom: 1px solid var(--line); }
+.timeline { position: relative; border-top: 1px solid var(--line); }
+/* Rail filled by useScrollProgress as the roles are read; each node fills as it reveals. */
+.timeline__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.timeline__rail::after { content: ""; position: absolute; inset: 0; background: var(--red); transform-origin: top; scale: 1 var(--progress, 0); }
+.timeline__item { position: relative; display: grid; grid-template-columns: .35fr 1fr; gap: 8%; padding: 25px 2%; border-bottom: 1px solid var(--line); }
+.timeline__item::before { content: ""; position: absolute; left: -4px; top: 29px; width: 10px; height: 10px; border-radius: 50%; background: var(--paper-deep); border: 2px solid var(--line-strong); transition: background .4s ease .5s, border-color .4s ease .5s; }
+.timeline__item.is-visible::before { background: var(--red); border-color: var(--red); }
+.timeline__present { display: inline-flex; align-items: center; gap: 6px; }
+.timeline__present i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: live-pulse 2s ease-out infinite; }
+@keyframes live-pulse { 0% { box-shadow: 0 0 0 0 rgba(233, 84, 56, .55); } 80%, 100% { box-shadow: 0 0 0 8px rgba(233, 84, 56, 0); } }
 .timeline__date { padding-top: 2px; color: var(--red-text); font-size: 9px; line-height: 1.8; }
 .timeline__date span { color: var(--muted); font-size: 9px; }
 .timeline__eyebrow { color: var(--muted); font-size: 9px; letter-spacing: .04em; }
@@ -522,7 +533,9 @@ main:focus { outline: none; }
 .timeline__body ul { margin: 0; padding-left: 17px; max-width: 660px; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .timeline__body li { padding: 2px 0; }
 .experience__bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 26px 2% 0; }
-.education-card, .cert-card { padding: 22px; border: 1px solid var(--line); background: var(--surface); }
+.education-card, .cert-card { position: relative; padding: 22px; border: 1px solid var(--line); background: var(--surface); transition: translate .35s var(--ease-out), box-shadow .35s var(--ease-out); }
+/* A dog-eared corner folds down on hover. */
+.education-card::after, .cert-card::after { content: ""; position: absolute; top: -1px; right: -1px; width: 0; height: 0; background: linear-gradient(225deg, var(--paper-deep) 0 50%, color-mix(in srgb, var(--ink) 14%, var(--surface)) 50%); box-shadow: -2px 2px 3px rgba(0, 0, 0, .08); transition: width .35s var(--ease-out), height .35s var(--ease-out); }
 .education-card h3 { margin-top: 14px; }
 .education-card p, .cert-card p { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 7px 0 12px; }
 .education-card__score { font-size: 9px; color: var(--red-text); }
@@ -535,7 +548,10 @@ main:focus { outline: none; }
 .toolbox__details { max-width: 430px; padding-top: 24px; }
 .toolbox__details > p { max-width: 380px; font-size: 14px; line-height: 1.75; color: var(--muted); margin: 0 0 23px; }
 .skill-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.skill-pill { display: flex; align-items: center; gap: 7px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 2px; font: 9px var(--mono); transition: background .18s, color .18s, transform .18s; }
+.skill-pill { position: relative; display: flex; align-items: center; gap: 7px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 2px; font: 9px var(--mono); transition: background .18s, color .18s, transform .18s, opacity .45s var(--ease-out) var(--pill-delay), translate .45s var(--ease-out) var(--pill-delay); --pill-delay: calc(var(--reveal-delay, 0ms) + 220ms + var(--i, 0) * 26ms); }
+:is(.reveal-ready .reveal:not(.is-visible), .is-covered) .skill-pill { opacity: 0; translate: 0 10px; transition: none; }
+/* Detection-box corners on hover, like the hero's tracker. */
+.skill-pill::after { content: ""; position: absolute; inset: -5px; pointer-events: none; opacity: 0; scale: 1.18; background: linear-gradient(var(--red) 0 0) 0 0 / 7px 1.5px, linear-gradient(var(--red) 0 0) 0 0 / 1.5px 7px, linear-gradient(var(--red) 0 0) 100% 0 / 7px 1.5px, linear-gradient(var(--red) 0 0) 100% 0 / 1.5px 7px, linear-gradient(var(--red) 0 0) 0 100% / 7px 1.5px, linear-gradient(var(--red) 0 0) 0 100% / 1.5px 7px, linear-gradient(var(--red) 0 0) 100% 100% / 7px 1.5px, linear-gradient(var(--red) 0 0) 100% 100% / 1.5px 7px; background-repeat: no-repeat; transition: opacity .18s, scale .25s var(--ease-out); }
 .skill-pill i { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
 .skill-pill:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
 .toolbox__callout { display: flex; align-items: center; gap: 11px; margin-top: 25px; border-top: 1px solid var(--line); padding-top: 14px; font: 9px var(--mono); }
@@ -544,6 +560,7 @@ main:focus { outline: none; }
 .toolbox__callout-mark { display: grid; place-items: center; width: 28px; height: 28px; background: var(--art-blue); color: white; font-weight: 700; font-size: 16px; border-radius: 50%; }
 .marquee { margin: 0 -12%; background: var(--red); color: var(--art-paper); overflow: hidden; border-top: 1px solid var(--art-ink); border-bottom: 1px solid var(--art-ink); transform: rotate(-1deg) scale(1.03); }
 .marquee__track { display: flex; width: max-content; animation: marquee 28s linear infinite; }
+.marquee__track.is-driven { animation: none; will-change: transform; } /* see useVelocityMarquee */
 .marquee__track > span { display: flex; align-items: center; gap: 22px; white-space: nowrap; padding: 16px 11px; font-size: 13px; font-weight: 700; letter-spacing: .05em; }
 .marquee__track svg { color: var(--yellow); }
 .marquee:hover .marquee__track { animation-play-state: paused; }
@@ -683,7 +700,8 @@ main:focus { outline: none; }
   .work__foot { margin-top: 32px; }
   .experience__heading { display: block; padding: 42px 0 32px; }
   .experience__intro { margin-top: 24px; }
-  .timeline__item { grid-template-columns: 1fr; gap: 8px; padding: 21px 1%; }
+  .timeline__item { grid-template-columns: 1fr; gap: 8px; padding: 21px 1% 21px 20px; }
+  .timeline__item::before { top: 25px; }
   .timeline__body h3 { font-size: 19px; }
   .experience__bottom { grid-template-columns: 1fr; gap: 12px; padding: 20px 0 0; }
   .toolbox__grid { display: block; padding: 43px 0 47px; }

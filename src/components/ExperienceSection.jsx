@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import { ArrowUpRight } from "lucide-react";
+import { useRef } from "react";
+import { useScrollProgress } from "../hooks/useScrollProgress.js";
 import { formatMonth } from "../lib/format.js";
 import { sectionShape } from "../lib/propTypes.js";
 import { Doodle } from "./Doodle.jsx";
@@ -11,7 +13,14 @@ function DateRange({ start, end }) {
   return (
     <>
       <time dateTime={start}>{formatMonth(start)}</time> —{" "}
-      {end ? <time dateTime={end}>{formatMonth(end)}</time> : "PRESENT"}
+      {end ? (
+        <time dateTime={end}>{formatMonth(end)}</time>
+      ) : (
+        <span className="timeline__present">
+          <i aria-hidden="true" />
+          PRESENT
+        </span>
+      )}
     </>
   );
 }
@@ -22,6 +31,9 @@ DateRange.propTypes = {
 };
 
 export function ExperienceSection({ section, experience, education, certifications, linkedinUrl }) {
+  const timelineRef = useRef(null);
+  useScrollProgress(timelineRef);
+
   return (
     <section className="experience section-pad" id={section.id} aria-labelledby="experience-title">
       <SectionKicker section={section} />
@@ -47,7 +59,9 @@ export function ExperienceSection({ section, experience, education, certificatio
           </p>
         </Reveal>
       </div>
-      <div className="timeline">
+      <div className="timeline" ref={timelineRef}>
+        {/* A rail that fills as you read down the roles. */}
+        <span className="timeline__rail" aria-hidden="true" />
         {experience.map((item, index) => (
           <Reveal className="timeline__item" delay={index * 90} key={item.id}>
             <div className="timeline__date mono">
