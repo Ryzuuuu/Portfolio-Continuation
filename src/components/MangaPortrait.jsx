@@ -24,18 +24,32 @@ export function MangaPortrait({ children = null }) {
         <path d="M281 56h127v205H281z" fill="url(#dots)" />
         <path d="M84 82h311v400H84z" fill="#F5F1E9" stroke="#171715" strokeWidth="3" />
         <g clipPath="url(#portraitClip)">
+          {/* hoodie: body, hood bunched behind the neck, raglan seams, drawstrings */}
           <path d="M89 352c27-68 85-103 152-103 72 0 131 35 164 103v146H89V352Z" fill="#E95438" stroke="#171715" strokeWidth="4" />
-          <path d="M173 290c1 31-10 60-22 78 26 33 55 48 90 48 34 0 65-17 91-49-17-20-24-51-24-82l-135 5Z" fill="#E6AF8D" stroke="#171715" strokeWidth="4" />
-          <path d="M152 170c0-67 41-103 95-103 62 0 104 42 104 111 0 48-10 94-34 121-19 21-44 34-72 34-36 0-62-18-78-46-13-25-15-74-15-117Z" fill="#F2C5A6" stroke="#171715" strokeWidth="4" />
-          <path d="M143 179c-4-76 28-125 92-129 35-2 62 11 81 37 20 27 27 60 21 100-18-15-32-42-39-68-30 28-78 44-142 45l-13 15Z" fill="#171715" stroke="#171715" strokeWidth="5" strokeLinejoin="round" />
-          <path d="M154 189c-22 0-34 17-31 38 2 19 15 31 32 28M340 190c21-2 32 14 30 34-2 19-14 31-30 30" fill="#F2C5A6" stroke="#171715" strokeWidth="4" />
-          <path d="M184 198c12-9 27-9 39-2M270 196c13-8 27-7 38 1" stroke="#171715" strokeWidth="5" strokeLinecap="round" />
-          <path d="M194 221c5-8 12-8 17 0M281 220c5-8 12-8 17 0" stroke="#171715" strokeWidth="4" strokeLinecap="round" />
-          <path d="M246 220c-2 17-7 35-13 43 8 6 17 7 25 2M224 282c16 8 34 7 48-3" stroke="#171715" strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M194 239c8 10 19 12 30 4M277 242c9 8 19 6 27-4" stroke="#171715" strokeWidth="3" strokeLinecap="round" />
-          <path d="M102 377c44-25 90-37 140-37 58 0 106 13 146 39" stroke="#171715" strokeWidth="3" strokeDasharray="8 8" />
-          <path d="M190 368 240 436l48-67" stroke="#171715" strokeWidth="4" />
-          <path d="m153 380 27 117m149-119-26 119" stroke="#171715" strokeWidth="3" />
+          <path d="M146 338c14-34 54-56 105-56s91 22 105 56c-15 42-55 68-105 68s-90-26-105-68Z" fill="#D9472E" stroke="#171715" strokeWidth="4" />
+          <path d="M172 334c16-22 45-35 79-35s63 13 79 35" stroke="#171715" strokeWidth="3" />
+          <path d="M150 352c-18 16-34 38-44 66M352 352c18 16 34 38 44 66" stroke="#171715" strokeWidth="3" strokeDasharray="8 8" />
+          <path d="M233 400c-2 18-3 34-6 50M269 400c2 18 3 34 6 50" stroke="#171715" strokeWidth="3" strokeLinecap="round" />
+          <path d="M221 449h11v15h-11zM270 449h11v15h-11z" fill="#F5F1E9" stroke="#171715" strokeWidth="2.5" />
+          {/* neck and the chin's shadow */}
+          <path d="M208 276c2 30-1 54-9 72 14 17 32 25 52 25s38-8 52-25c-8-18-11-42-9-72Z" fill="#E6AF8D" stroke="#171715" strokeWidth="4" />
+          <path d="M206 300c15 13 29 19 45 19s30-6 45-19l1 12c-14 13-29 19-46 19s-32-6-46-19Z" fill="#D49576" />
+          {/* face */}
+          <path d="M154 174c0-66 42-106 97-106 60 0 99 42 99 107 0 50-9 88-31 112-17 19-39 33-68 34-29 0-51-14-70-37-18-22-27-62-27-110Z" fill="#F2C5A6" stroke="#171715" strokeWidth="4" />
+          {/* hair: crown and a side-swept fringe, with a shine */}
+          <path d="M141 190c-7-82 31-134 97-136 38-1 67 12 86 38 19 28 25 62 19 100Q340 166 334 146Q330 162 322 172Q314 148 300 124Q292 152 268 168Q276 144 262 120Q252 150 226 164Q236 140 220 122Q210 152 186 172Q196 150 178 140Q172 164 156 184Q150 188 141 190Z" fill="#171715" stroke="#171715" strokeWidth="5" strokeLinejoin="round" />
+          <path d="M200 104c17-9 36-12 55-10M272 97c10 2 20 6 28 12" stroke="#F5F1E9" strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M157 190c-22-1-35 15-32 36 3 18 18 28 38 24M341 190c21-2 32 14 30 34-2 19-14 31-30 30" fill="#F2C5A6" stroke="#171715" strokeWidth="4" />
+          <path d="M185 197c11-6 24-7 36-3M275 195c12-5 25-4 36 2" stroke="#171715" strokeWidth="4.5" strokeLinecap="round" />
+          {/* closed, smiling eyes */}
+          <path d="M191 223c5-10 16-10 21 0M279 222c5-10 16-10 21 0" stroke="#171715" strokeWidth="4.5" strokeLinecap="round" />
+          {/* blush with manga hatching */}
+          <ellipse cx="200" cy="251" rx="13" ry="5.5" fill="#E95438" opacity=".22" />
+          <ellipse cx="304" cy="250" rx="13" ry="5.5" fill="#E95438" opacity=".22" />
+          <path d="M194 254l4-6M201 254l4-6M208 254l4-6M298 253l4-6M305 253l4-6M312 253l4-6" stroke="#C8452C" strokeWidth="2" strokeLinecap="round" />
+          {/* nose and an easy, slightly lopsided smile */}
+          <path d="M253 234c-1 7-4 13-8 16 4 3 9 3 13 0" stroke="#171715" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M228 268c11 11 32 12 46-1M274 267c2-1 4-4 4-7" stroke="#171715" strokeWidth="3.5" strokeLinecap="round" />
         </g>
         <path d="M60 504h348" stroke="#171715" strokeWidth="3" />
         <path d="M73 72h9m-9 0v9m313-9h-9m9 0v9M73 490h9m-9 0v-9m313 9h-9m9 0v-9" stroke="#E95438" strokeWidth="4" />
