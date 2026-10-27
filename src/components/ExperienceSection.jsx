@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import { ArrowUpRight } from "lucide-react";
 import { formatMonth } from "../lib/format.js";
 import { sectionShape } from "../lib/propTypes.js";
+import { Doodle } from "./Doodle.jsx";
+import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
 
@@ -29,9 +31,13 @@ export function ExperienceSection({ section, experience, education, certificatio
             <span className="eyebrow__line" /> THE WORK BEHIND THE WORK
           </p>
           <h2 id="experience-title">
-            Learning by
-            <br />
-            <em>shipping.</em>
+            <HeadingLine>Learning by</HeadingLine>{" "}
+            <HeadingLine>
+              <em>
+                shipping.
+                <Doodle variant="underline" />
+              </em>
+            </HeadingLine>
           </h2>
         </Reveal>
         <Reveal delay={100}>

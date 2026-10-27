@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { ArrowUpRight, Asterisk } from "lucide-react";
 import { sectionShape } from "../lib/propTypes.js";
+import { Doodle } from "./Doodle.jsx";
+import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
 
@@ -16,11 +18,13 @@ export function ToolboxSection({ section, skills }) {
             <span className="eyebrow__line" /> THE RIGHT TOOL FOR THE PROBLEM
           </p>
           <h2 id="toolbox-title">
-            From raw
-            <br />
-            signal to
-            <br />
-            <em>systems.</em>
+            <HeadingLine>From raw</HeadingLine> <HeadingLine>signal to</HeadingLine>{" "}
+            <HeadingLine>
+              <em>
+                systems.
+                <Doodle variant="double" />
+              </em>
+            </HeadingLine>
           </h2>
         </Reveal>
         <Reveal className="toolbox__details" delay={120}>

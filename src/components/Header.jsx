@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Menu, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { profileShape, sectionShape } from "../lib/propTypes.js";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 
@@ -42,12 +42,58 @@ function useHeaderScrollState() {
   return state;
 }
 
+/** The id of the section crossing the middle of the screen, or null (e.g. on the hero). */
+function useActiveSection(ids) {
+  const [active, setActive] = useState(null);
+  const key = ids.join(",");
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return undefined;
+    const order = key.split(",");
+    const visible = new Set();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) =>
+          entry.isIntersecting ? visible.add(entry.target.id) : visible.delete(entry.target.id)
+        );
+        setActive(order.find((id) => visible.has(id)) ?? null);
+      },
+      { rootMargin: "-48% 0px -51% 0px" }
+    );
+    order.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+    return () => observer.disconnect();
+  }, [key]);
+
+  return active;
+}
+
 export function Header({ profile, sections }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { hidden, scrolled } = useHeaderScrollState();
   const toggleRef = useRef(null);
   const navRef = useRef(null);
+  const inkRef = useRef(null);
   const [firstInitial, secondInitial] = profile.initials;
+  const activeId = useActiveSection(sections.map((section) => section.id));
+
+  // Slide the ink bar under the active link (desktop nav only; hidden by CSS otherwise).
+  useLayoutEffect(() => {
+    const ink = inkRef.current;
+    const link = activeId && navRef.current?.querySelector(`a[href="#${activeId}"]`);
+    if (!ink) return undefined;
+    function place() {
+      ink.style.opacity = link ? "1" : "0";
+      if (!link) return;
+      ink.style.width = `${link.offsetWidth}px`;
+      ink.style.translate = `${link.offsetLeft}px 0`;
+    }
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [activeId]);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -97,13 +143,19 @@ export function Header({ profile, sections }) {
         aria-label="Main navigation"
       >
         {sections.map((section) => (
-          <a key={section.id} href={`#${section.id}`} onClick={closeMenu}>
+          <a
+            key={section.id}
+            href={`#${section.id}`}
+            aria-current={activeId === section.id ? "location" : undefined}
+            onClick={closeMenu}
+          >
             {section.navLabel} <span aria-hidden="true">{section.number}</span>
           </a>
         ))}
         <a className="nav-availability" href="#contact" onClick={closeMenu}>
           <i aria-hidden="true" /> AVAILABLE FOR WORK
         </a>
+        <span className="site-nav__ink" ref={inkRef} aria-hidden="true" />
       </nav>
       <ThemeToggle />
       <button

@@ -155,7 +155,10 @@ main:focus { outline: none; }
 .wordmark__icon span { color: var(--red); }
 .wordmark__label { font-size: 10px; font-weight: 700; line-height: 1.2; letter-spacing: .08em; text-transform: uppercase; }
 .wordmark__label small { font: 9px var(--mono); letter-spacing: .04em; color: var(--muted); }
-.site-nav { display: flex; align-items: center; gap: clamp(19px, 2.6vw, 44px); margin-left: auto; }
+.site-nav { position: relative; display: flex; align-items: center; gap: clamp(19px, 2.6vw, 44px); margin-left: auto; }
+.site-nav > a[aria-current] span { color: var(--red-text); }
+/* Ink bar that slides under the section being read (positioned by Header.jsx). */
+.site-nav__ink { position: absolute; left: 0; bottom: -12px; width: 0; height: 2px; background: var(--red); opacity: 0; pointer-events: none; transition: translate .5s var(--ease-out), width .5s var(--ease-out), opacity .3s; }
 .site-nav > a { font: 9px var(--mono); letter-spacing: .02em; transition: color .2s; }
 .site-nav > a:hover, .site-nav > a:focus-visible { color: var(--red-text); }
 .site-nav > a span { color: var(--muted); font-size: 9px; margin-left: 3px; }
@@ -353,6 +356,32 @@ main:focus { outline: none; }
 }
 
 .section-kicker { border-bottom: 1px solid var(--line); padding-bottom: 13px; color: var(--muted); }
+/* ── Section headings: lines rise out of slots, accent words get a hand-drawn mark ──── */
+.section-pad { position: relative; isolation: isolate; }
+.h2-line { display: block; clip-path: inset(-1em); transition: clip-path 0s calc(var(--reveal-delay, 0ms) + 1.3s); }
+.h2-line > span { display: inline-block; transform-origin: 0 100%; transition: translate 1s var(--ease-rise), rotate 1s var(--ease-rise); transition-delay: calc(var(--reveal-delay, 0ms) + var(--line-delay, 0ms)); }
+.h2-line:nth-child(2) { --line-delay: 80ms; }
+.h2-line:nth-child(3) { --line-delay: 160ms; }
+.h2-line:nth-child(4) { --line-delay: 240ms; }
+:is(.reveal-ready .reveal:not(.is-visible), .is-covered) .h2-line { clip-path: inset(-.5em -.6em -.26em -.6em); transition: none; }
+:is(.reveal-ready .reveal:not(.is-visible), .is-covered) .h2-line > span { translate: 0 128%; rotate: 4deg; transition: none; }
+.section-pad h2 em { position: relative; }
+.doodle { position: absolute; pointer-events: none; overflow: visible; fill: none; stroke: var(--doodle-color, var(--red)); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.intro .doodle { --doodle-color: var(--blue); }
+.doodle--circle { left: -16%; top: -12%; width: 132%; height: 126%; }
+.doodle--underline, .doodle--squiggle, .doodle--double { left: -2%; bottom: -.2em; width: 100%; height: .26em; }
+.doodle path { stroke-dasharray: 1; transition: stroke-dashoffset 1s var(--ease-out) calc(var(--reveal-delay, 0ms) + 700ms); }
+.doodle path + path { transition-delay: calc(var(--reveal-delay, 0ms) + 950ms); }
+:is(.reveal-ready .reveal:not(.is-visible), .is-covered) .doodle path { stroke-dashoffset: 1; transition: none; }
+/* Manga chapter title (物語, 作品 …) drawn large and hollow behind each section. */
+/* Sized to live in the right-hand margin, clear of the content column. */
+.chapter-mark { position: absolute; z-index: -1; top: clamp(96px, 10vw, 140px); right: 1.6%; writing-mode: vertical-rl; font: 400 clamp(56px, 6.3vw, 104px)/1 var(--display-jp); letter-spacing: .06em; color: transparent; -webkit-text-stroke: 1.2px var(--chapter-ink, var(--line-strong)); pointer-events: none; user-select: none; }
+.work .chapter-mark { --chapter-ink: var(--band-line); }
+@supports (animation-timeline: view()) {
+  .chapter-mark { animation: chapter-drift linear both; animation-timeline: view(); animation-range: cover; }
+}
+@keyframes chapter-drift { from { translate: 0 12vh; } to { translate: 0 -12vh; } }
+
 .intro { padding-top: 66px; }
 .intro__grid { display: grid; grid-template-columns: 1fr .75fr; gap: 12%; padding: 65px 7% 54px 2%; align-items: center; }
 .intro__heading { position: relative; }
@@ -505,6 +534,7 @@ main:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .reveal-ready .reveal:not(.is-visible) { opacity: 1; transform: none; }
+  .chapter-mark { animation: none !important; }
 }
 
 @media (min-width: 1500px) {
@@ -522,6 +552,7 @@ main:focus { outline: none; }
   .site-nav.is-open { display: flex; flex-direction: column; }
   .site-nav > a { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 10px; }
   .site-nav .nav-availability { margin-top: 12px; justify-content: flex-start; padding: 12px; }
+  .site-nav__ink { display: none; }
 }
 
 @media (max-width: 900px) {
@@ -565,6 +596,7 @@ main:focus { outline: none; }
   .hero__foot { font-size: 8px; margin-top: 12px; }
   .section-pad { padding-top: 55px; padding-bottom: 72px; }
   .section-kicker { font-size: 8px; gap: 12px; }
+  .chapter-mark { display: none; }
   .intro__grid { display: block; padding: 44px 0 33px; }
   .intro h2, .work h2, .toolbox h2, .contact h2 { font-size: clamp(52px, 13vw, 78px); }
   .intro__asterisk { right: 12%; top: 37px; }
