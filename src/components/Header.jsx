@@ -4,8 +4,47 @@ import { useEffect, useRef, useState } from "react";
 import { profileShape, sectionShape } from "../lib/propTypes.js";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 
+const HIDE_AFTER_PX = 120; // never hide while the top of the page is in view
+const DIRECTION_SLOP_PX = 6; // ignore scroll jitter
+
+/** Hides the fixed header while scrolling down and brings it back on the way up. */
+function useHeaderScrollState() {
+  const [state, setState] = useState({ hidden: false, scrolled: false });
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+    function update() {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      setState((current) => {
+        const scrolled = y > 8;
+        let hidden = current.hidden;
+        if (Math.abs(delta) > DIRECTION_SLOP_PX) hidden = delta > 0 && y > HIDE_AFTER_PX;
+        if (y <= HIDE_AFTER_PX) hidden = false;
+        return hidden === current.hidden && scrolled === current.scrolled
+          ? current
+          : { hidden, scrolled };
+      });
+      if (Math.abs(delta) > DIRECTION_SLOP_PX) lastY = y;
+    }
+    function handleScroll() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return state;
+}
+
 export function Header({ profile, sections }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { hidden, scrolled } = useHeaderScrollState();
   const toggleRef = useRef(null);
   const navRef = useRef(null);
   const [firstInitial, secondInitial] = profile.initials;
@@ -31,7 +70,15 @@ export function Header({ profile, sections }) {
   }
 
   return (
-    <header className="site-header">
+    <header
+      className={[
+        "site-header",
+        hidden && !menuOpen ? "is-hidden" : "",
+        scrolled ? "is-scrolled" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <a className="wordmark" href="#top" aria-label={`${profile.name} home`}>
         <span className="wordmark__icon" aria-hidden="true">
           {firstInitial}
