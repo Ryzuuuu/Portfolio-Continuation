@@ -2,14 +2,20 @@ import PropTypes from "prop-types";
 import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { profileShape, sectionShape } from "../lib/propTypes.js";
+import { ThemeToggle } from "./ThemeToggle.jsx";
 
 export function Header({ profile, sections }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleRef = useRef(null);
+  const navRef = useRef(null);
   const [firstInitial, secondInitial] = profile.initials;
 
   useEffect(() => {
     if (!menuOpen) return undefined;
+    // The nav sits before the buttons in the DOM (so desktop tab order matches the
+    // layout), so move focus into the dropdown when it opens.
+    navRef.current?.querySelector("a")?.focus();
+
     function handleKeyDown(event) {
       if (event.key === "Escape") {
         setMenuOpen(false);
@@ -37,19 +43,9 @@ export function Header({ profile, sections }) {
           <small>{profile.tagline}</small>
         </span>
       </a>
-      <button
-        ref={toggleRef}
-        className="menu-toggle"
-        type="button"
-        aria-label="Navigation menu"
-        aria-expanded={menuOpen}
-        aria-controls="site-nav"
-        onClick={() => setMenuOpen((open) => !open)}
-      >
-        {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-      </button>
       <nav
         id="site-nav"
+        ref={navRef}
         className={menuOpen ? "site-nav is-open" : "site-nav"}
         aria-label="Main navigation"
       >
@@ -62,6 +58,18 @@ export function Header({ profile, sections }) {
           <i aria-hidden="true" /> AVAILABLE FOR WORK
         </a>
       </nav>
+      <ThemeToggle />
+      <button
+        ref={toggleRef}
+        className="menu-toggle"
+        type="button"
+        aria-label="Navigation menu"
+        aria-expanded={menuOpen}
+        aria-controls="site-nav"
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+      </button>
     </header>
   );
 }

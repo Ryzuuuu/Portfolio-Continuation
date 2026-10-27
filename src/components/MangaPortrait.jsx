@@ -1,6 +1,8 @@
+import PropTypes from "prop-types";
 import { Asterisk } from "lucide-react";
 
-export function MangaPortrait() {
+/** The hand-drawn self-portrait. `children` render inside the frame (e.g. overlays). */
+export function MangaPortrait({ children = null }) {
   return (
     <div
       className="portrait-frame"
@@ -44,6 +46,11 @@ export function MangaPortrait() {
       <span className="portrait-stamp">
         創<br />作
       </span>
+      {children}
     </div>
   );
 }
+
+MangaPortrait.propTypes = {
+  children: PropTypes.node,
+};

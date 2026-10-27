@@ -11,6 +11,9 @@ export const profile = {
   tagline: "AI/ML ENGINEER · BUILDER",
   focus: "AI/ML ENGINEER · PYTHON BACKEND · COMPUTER VISION",
   location: "Kolkata, India",
+  // Drives the live CCTV-style clock in the hero.
+  timeZone: "Asia/Kolkata",
+  timeZoneLabel: "IST",
   edition: "PORTFOLIO / 2026",
   description:
     "Neelabja Mukhopadhyay — AI/ML engineer building computer vision systems, LLM agents, and Python backend services.",
