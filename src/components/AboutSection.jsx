@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { ArrowRight, Asterisk } from "lucide-react";
 import { sectionShape } from "../lib/propTypes.js";
+import { Doodle } from "./Doodle.jsx";
+import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
 
@@ -14,13 +16,14 @@ export function AboutSection({ section, bio, stats }) {
             <span className="eyebrow__line" /> RAW DATA IN. USEFUL SYSTEMS OUT.
           </p>
           <h2 id="about-title">
-            Make messy
-            <br />
-            problems
-            <br />
-            <em>make</em>
-            <br />
-            sense.
+            <HeadingLine>Make messy</HeadingLine> <HeadingLine>problems</HeadingLine>{" "}
+            <HeadingLine>
+              <em>
+                make
+                <Doodle variant="circle" />
+              </em>
+            </HeadingLine>{" "}
+            <HeadingLine>sense.</HeadingLine>
           </h2>
           <span className="intro__asterisk" aria-hidden="true">
             <Asterisk size={34} />

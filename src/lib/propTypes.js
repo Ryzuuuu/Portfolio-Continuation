@@ -6,6 +6,7 @@ export const sectionShape = PropTypes.shape({
   navLabel: PropTypes.string.isRequired,
   kicker: PropTypes.string.isRequired,
   kickerAside: PropTypes.string.isRequired,
+  kanji: PropTypes.string,
 });
 
 export const profileShape = PropTypes.shape({
