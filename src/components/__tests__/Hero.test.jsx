@@ -39,3 +39,18 @@ describe("Hero", () => {
     );
   });
 });
+
+describe("HeroStage", () => {
+  it("falls back to a plain hero when the zoom can't run, with its effects hidden from AT", async () => {
+    const { HeroStage } = await import("../hero/HeroStage.jsx");
+    const { container } = render(<HeroStage profile={profile} pageCount={6} />);
+    const stage = container.querySelector(".hero-stage");
+
+    // jsdom has no ResizeObserver, like the old browsers the zoom skips.
+    expect(stage).not.toHaveAttribute("data-zoom");
+    expect(stage.style.height).toBe("");
+    expect(screen.getByRole("heading", { level: 1 })).toBeVisible();
+    expect(container.querySelector(".zoom-fx")).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelectorAll(".portrait-eye")).toHaveLength(2);
+  });
+});

@@ -3,7 +3,7 @@ import { ContactSection } from "./components/ContactSection.jsx";
 import { ExperienceSection } from "./components/ExperienceSection.jsx";
 import { Footer } from "./components/Footer.jsx";
 import { Header } from "./components/Header.jsx";
-import { Hero } from "./components/Hero.jsx";
+import { HeroStage } from "./components/hero/HeroStage.jsx";
 import { ProjectsSection } from "./components/ProjectsSection.jsx";
 import { ReadingProgress } from "./components/ReadingProgress.jsx";
 import { ToolboxSection } from "./components/ToolboxSection.jsx";
@@ -26,7 +26,7 @@ function App() {
       <Header profile={profile} sections={sections} />
 
       <main id="main" tabIndex={-1}>
-        <Hero profile={profile} pageCount={sections.length + 1} />
+        <HeroStage profile={profile} pageCount={sections.length + 1} />
         <AboutSection section={sectionById.about} bio={bio} stats={stats} />
         <ProjectsSection section={sectionById.work} projects={projects} />
         <ExperienceSection

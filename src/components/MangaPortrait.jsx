@@ -60,6 +60,10 @@ export function MangaPortrait({ children = null }) {
       <span className="portrait-stamp">
         創<br />作
       </span>
+      {/* Zero-size anchors on the crest of each closed eye (SVG 201.5,216 and 289.5,214.5);
+          the scroll zoom measures them, so they follow the frame's rotation. */}
+      <i className="portrait-eye portrait-eye--left" aria-hidden="true" />
+      <i className="portrait-eye portrait-eye--right" aria-hidden="true" />
       {children}
     </div>
   );
