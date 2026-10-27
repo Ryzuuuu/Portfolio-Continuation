@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f2eee5" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Applies the saved (or system) theme before first paint, so there's no flash of
+         the wrong one. Keep the key and colours in sync with src/hooks/useTheme.js. -->
+    <script>
+      (function () {
+        var theme = "light";
+        try {
+          var stored = localStorage.getItem("theme");
+          theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+        } catch (error) {
+          // Storage blocked: fall back to the light theme.
+        }
+        document.documentElement.dataset.theme = theme;
+        if (theme === "dark") {
+          document.querySelector('meta[name="theme-color"]').content = "#131210";
+        }
+      })();
+    </script>
     <title>Neelabja Mukhopadhyay — AI/ML Engineer</title>
     <meta
       name="description"
@@ -56,6 +79,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Manga display face for the Japanese glyphs only (ジーッ創作), subset to a few KB. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&text=%E3%82%B8%E3%83%BC%E3%83%83%E5%89%B5%E4%BD%9C&display=swap"
       rel="stylesheet"
     />
   </head>

@@ -14,6 +14,8 @@ export const profileShape = PropTypes.shape({
   tagline: PropTypes.string.isRequired,
   focus: PropTypes.string.isRequired,
   location: PropTypes.string.isRequired,
+  timeZone: PropTypes.string.isRequired,
+  timeZoneLabel: PropTypes.string.isRequired,
   edition: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
   social: PropTypes.shape({
