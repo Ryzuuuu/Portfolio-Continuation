@@ -11,11 +11,16 @@ describe("loadEnv", () => {
     expect(env.mail.sendAutoReply).toBe(true);
     expect(env.trustProxy).toBe(false);
     expect(env.clientOrigins).toContain("http://localhost:5173");
-    expect(warnings.join("\n")).toMatch(/CLIENT_ORIGIN.*MONGODB_URI.*EMAIL_USER and EMAIL_APP_PASSWORD/s);
+    expect(warnings.join("\n")).toMatch(
+      /CLIENT_ORIGIN.*MONGODB_URI.*EMAIL_USER and EMAIL_APP_PASSWORD/s
+    );
   });
 
   it("strips the display spaces from a Gmail App Password", () => {
-    const { env, warnings } = loadEnv({ EMAIL_USER: "me@gmail.com", EMAIL_APP_PASSWORD: "abcd efgh ijkl mnop" });
+    const { env, warnings } = loadEnv({
+      EMAIL_USER: "me@gmail.com",
+      EMAIL_APP_PASSWORD: "abcd efgh ijkl mnop",
+    });
 
     expect(env.mail.appPassword).toBe("abcdefghijklmnop");
     expect(env.mail.configured).toBe(true);
@@ -31,7 +36,8 @@ describe("loadEnv", () => {
   it("defaults the receiver to EMAIL_USER and honours an override", () => {
     expect(loadEnv({ EMAIL_USER: "me@gmail.com" }).env.mail.receiver).toBe("me@gmail.com");
     expect(
-      loadEnv({ EMAIL_USER: "me@gmail.com", CONTACT_RECEIVER_EMAIL: "inbox@example.com" }).env.mail.receiver
+      loadEnv({ EMAIL_USER: "me@gmail.com", CONTACT_RECEIVER_EMAIL: "inbox@example.com" }).env.mail
+        .receiver
     ).toBe("inbox@example.com");
   });
 

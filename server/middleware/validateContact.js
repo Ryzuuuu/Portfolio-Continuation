@@ -24,7 +24,10 @@ export function validateContact(request, response, next) {
   // Names and emails end up in mail headers, so all whitespace collapses to single spaces.
   const name = asText(body.name).replace(CONTROL_CHARACTERS, "").replace(/\s+/g, " ").trim();
   const email = asText(body.email).trim();
-  const message = asText(body.message).replace(/\r\n?/g, "\n").replace(CONTROL_CHARACTERS, "").trim();
+  const message = asText(body.message)
+    .replace(/\r\n?/g, "\n")
+    .replace(CONTROL_CHARACTERS, "")
+    .trim();
 
   const fields = {};
   if (!name) fields.name = "Please tell me your name.";

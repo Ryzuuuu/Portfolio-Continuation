@@ -1,0 +1,7 @@
+dist/
+coverage/
+public/
+package-lock.json
+pnpm-lock.yaml
+# Hand-written in a compact one-rule-per-line style; Prettier would expand it ~4x.
+src/styles.css
