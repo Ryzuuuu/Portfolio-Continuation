@@ -1,34 +1,41 @@
 // The single source of section numbering: the header nav and every section kicker read
 // from this list, so they can't drift apart. Reorder here and both follow.
+// `kanji` is the manga chapter title drawn behind each section (story, works,
+// experience, tools, contact).
 export const sections = [
   {
     id: "about",
     navLabel: "THE STORY",
     kicker: "THE ORIGIN STORY",
+    kanji: "物語",
     kickerAside: "AI/ML · BACKEND · COMPUTER VISION",
   },
   {
     id: "work",
     navLabel: "SELECTED WORK",
     kicker: "SELECTED PROJECTS",
+    kanji: "作品",
     kickerAside: "BUILT, TESTED, VALIDATED",
   },
   {
     id: "experience",
     navLabel: "EXPERIENCE",
     kicker: "FIELD NOTES",
+    kanji: "経験",
     kickerAside: "EXPERIENCE · EDUCATION",
   },
   {
     id: "toolbox",
     navLabel: "TOOLBOX",
     kicker: "THE TOOLBOX",
+    kanji: "道具",
     kickerAside: "FAMILIAR, NOT PRECIOUS",
   },
   {
     id: "contact",
     navLabel: "SAY HELLO",
     kicker: "YOUR MOVE",
+    kanji: "連絡",
     kickerAside: "THE NEXT CHAPTER",
   },
 ].map((section, index) => ({ ...section, number: String(index + 1).padStart(2, "0") }));

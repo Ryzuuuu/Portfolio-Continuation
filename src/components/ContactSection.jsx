@@ -1,6 +1,8 @@
 import { Github, Linkedin, Mail, MoveUpRight } from "lucide-react";
 import { profileShape, sectionShape } from "../lib/propTypes.js";
 import { ContactForm } from "./ContactForm.jsx";
+import { Doodle } from "./Doodle.jsx";
+import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
 
@@ -14,11 +16,13 @@ export function ContactSection({ section, profile }) {
             <span className="eyebrow__line" /> HAVE A HARD PROBLEM?
           </p>
           <h2 id="contact-title">
-            Let&apos;s make
-            <br />
-            something
-            <br />
-            <em>matter.</em>
+            <HeadingLine>Let&apos;s make</HeadingLine> <HeadingLine>something</HeadingLine>{" "}
+            <HeadingLine>
+              <em>
+                matter.
+                <Doodle variant="circle" />
+              </em>
+            </HeadingLine>
           </h2>
           <p className="contact__sub">
             I’m looking for hard problems and a team that ships. If you’re building something

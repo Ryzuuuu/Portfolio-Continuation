@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { ArrowDownRight } from "lucide-react";
 import { projectShape, sectionShape } from "../lib/propTypes.js";
+import { Doodle } from "./Doodle.jsx";
+import { HeadingLine } from "./HeadingLine.jsx";
 import { ProjectCard } from "./ProjectCard.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
@@ -12,9 +14,14 @@ export function ProjectsSection({ section, projects }) {
       <div className="work__heading">
         <Reveal>
           <h2 id="work-title">
-            Systems
-            <br />
-            with <em>purpose.</em>
+            <HeadingLine>Systems</HeadingLine>{" "}
+            <HeadingLine>
+              with{" "}
+              <em>
+                purpose.
+                <Doodle variant="squiggle" />
+              </em>
+            </HeadingLine>
           </h2>
         </Reveal>
         <Reveal delay={100}>
