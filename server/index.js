@@ -1,33 +1,42 @@
-import "dotenv/config";
-import cors from "cors";
-import express from "express";
-import mongoose from "mongoose";
-import contactRouter from "./routes/contact.js";
+import { createApp } from "./app.js";
+import { connectDb, disconnectDb } from "./config/db.js";
+import { env, reportEnv } from "./config/env.js";
+import { closeMailer, verifyMailer } from "./config/mailer.js";
 
-const app = express();
-const port = Number(process.env.PORT) || 5000;
+reportEnv();
 
-app.use(cors());
-app.use(express.json({ limit: "10kb" }));
-app.use("/api/contact", contactRouter);
-
-app.get("/api/health", (_request, response) => {
-  response.json({ status: "ok", database: mongoose.connection.readyState === 1 ? "connected" : "disconnected" });
+const server = createApp().listen(env.port, () => {
+  console.info(`[api] Portfolio API listening on http://localhost:${env.port}`);
 });
 
-app.use((error, _request, response, _next) => {
-  console.error("API request failed:", error);
-  response.status(500).json({ error: "Something went wrong. Please try again." });
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`[api] Port ${env.port} is already in use. Set PORT to a free port.`);
+  } else {
+    console.error("[api] Server error:", error);
+  }
+  process.exit(1);
 });
 
-app.listen(port, () => {
-  console.log(`Portfolio API listening on http://localhost:${port}`);
+// Both run in the background and only log on failure; the API serves requests meanwhile.
+connectDb();
+verifyMailer();
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[api] Unhandled promise rejection:", reason);
 });
 
-if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI).catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
-  });
-} else {
-  console.warn("MONGODB_URI is not set. Contact form submissions will be unavailable.");
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.info(`[api] ${signal} received, shutting down.`);
+  setTimeout(() => process.exit(1), 10_000).unref();
+  server.close();
+  closeMailer();
+  await disconnectDb();
+  process.exit(0);
 }
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
