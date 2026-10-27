@@ -9,6 +9,8 @@ import { prefersReducedMotion } from "../lib/motion.js";
 const ZOOM_END = 0.72;
 const INK_START = 0.52;
 const INK_FULL = 0.8;
+const IMPACT_AT = 0.47; // impact frames fire as the camera locks on, just before the ink
+const IMPACT_MS = 420; // the frames play in ~260ms; the shake settles by here
 const HUD_IN = [0.02, 0.08];
 const HUD_OUT = [0.5, 0.62];
 
@@ -46,6 +48,7 @@ export function useEyeZoom(stageRef) {
     const readout = stage.querySelector("[data-zoom-readout]");
     const inkEyes = [...stage.querySelectorAll("[data-ink-eye]")];
     const droplets = [...stage.querySelectorAll("[data-ink-drop]")];
+    const impact = stage.querySelector(".impact");
     let g = null; // measured geometry
     let frame = 0;
     let lastY = window.scrollY;
@@ -53,6 +56,9 @@ export function useEyeZoom(stageRef) {
     let settleTarget = null; // where an automatic finish is heading, while it runs
     let settleTimer = 0;
     let touching = false;
+    let lastP = 0;
+    let impactArmed = true;
+    let impactTimer = 0;
 
     function measure() {
       hero.style.transform = "";
@@ -144,6 +150,30 @@ export function useEyeZoom(stageRef) {
         circle.setAttribute("cy", at.y.toFixed(1));
         circle.setAttribute("r", bloom.toFixed(1));
       });
+      // Impact frames fire once per descent, as p crosses the lock-on point. They run on
+      // the clock (CSS), not on scroll, so a fast scroll still gets every frame.
+      if (p < 0.1) impactArmed = true;
+      if (impactArmed && impact && lastP < IMPACT_AT && p >= IMPACT_AT && p < INK_FULL) {
+        impactArmed = false;
+        const left = toScreen(g.left);
+        const right = toScreen(g.right);
+        const eyeSize = Math.hypot(right.x - left.x, right.y - left.y) * 0.62;
+        impact.style.setProperty("--impact-x", `${((left.x + right.x) / 2).toFixed(1)}px`);
+        impact.style.setProperty("--impact-y", `${((left.y + right.y) / 2).toFixed(1)}px`);
+        impact.style.setProperty("--impact-reach", `${(g.reach * 2.2).toFixed(0)}px`);
+        impact.style.setProperty("--eye-size", `${eyeSize.toFixed(1)}px`);
+        impact.style.setProperty("--eye-lx", `${left.x.toFixed(1)}px`);
+        impact.style.setProperty("--eye-ly", `${left.y.toFixed(1)}px`);
+        impact.style.setProperty("--eye-rx", `${right.x.toFixed(1)}px`);
+        impact.style.setProperty("--eye-ry", `${right.y.toFixed(1)}px`);
+        stage.classList.remove("is-impact");
+        void stage.offsetWidth; // restart the CSS animations
+        stage.classList.add("is-impact");
+        clearTimeout(impactTimer);
+        impactTimer = setTimeout(() => stage.classList.remove("is-impact"), IMPACT_MS);
+      }
+      lastP = p;
+
       const vmin = Math.min(g.vw, g.vh);
       droplets.forEach((drop, index) => {
         const [x, y, radius, lands] = DROPLETS[index];
@@ -217,6 +247,7 @@ export function useEyeZoom(stageRef) {
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(settleTimer);
+      clearTimeout(impactTimer);
       resizeObserver.disconnect();
       window.removeEventListener("resize", refresh);
       window.removeEventListener("scroll", handleScroll);
@@ -225,6 +256,7 @@ export function useEyeZoom(stageRef) {
       hero.style.transform = "";
       hero.style.transformOrigin = "";
       stage.removeAttribute("data-zoom");
+      stage.classList.remove("is-impact");
       stage.removeAttribute("style");
       next.style.marginTop = "";
       next.classList.remove("is-covered");
