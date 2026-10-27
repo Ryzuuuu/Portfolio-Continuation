@@ -5,9 +5,9 @@ import { usePointerTilt } from "../hooks/usePointerTilt.js";
 import { pad2 } from "../lib/format.js";
 import { profileShape } from "../lib/propTypes.js";
 import { DetectionOverlay } from "./hero/DetectionOverlay.jsx";
-import { HeroClock } from "./hero/HeroClock.jsx";
 import { ScrambleText } from "./hero/ScrambleText.jsx";
 import { SpeedLines } from "./hero/SpeedLines.jsx";
+import { LiveClock } from "./LiveClock.jsx";
 import { MangaPortrait } from "./MangaPortrait.jsx";
 
 export function Hero({ profile, pageCount }) {
@@ -22,7 +22,7 @@ export function Hero({ profile, pageCount }) {
         <span>
           {location} · {profile.edition}
         </span>
-        <HeroClock timeZone={profile.timeZone} zoneLabel={profile.timeZoneLabel} />
+        <LiveClock timeZone={profile.timeZone} zoneLabel={profile.timeZoneLabel} />
         <span className="hero__scroll">
           SCROLL TO READ <ArrowDown size={13} aria-hidden="true" />
         </span>

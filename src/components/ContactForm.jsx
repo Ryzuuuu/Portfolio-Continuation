@@ -78,7 +78,7 @@ export function ContactForm() {
 
   return (
     <form
-      className="contact-form"
+      className={status.state === "success" ? "contact-form is-sent" : "contact-form"}
       onSubmit={handleSubmit}
       noValidate
       aria-labelledby="contact-form-title"
@@ -124,6 +124,14 @@ export function ContactForm() {
         {status.message}
       </p>
       <p className="form-foot mono">NO SPAM. JUST A HUMAN REPLY.</p>
+      {/* 済 ("done"): the seal stamped on a finished document. Purely decorative; the
+          status line above announces the success. */}
+      {status.state === "success" && (
+        <span className="form-stamp" aria-hidden="true">
+          <b>済</b>
+          <small className="mono">SENT</small>
+        </span>
+      )}
     </form>
   );
 }

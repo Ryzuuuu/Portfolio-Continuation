@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 
 /** A CCTV-style timestamp in the given time zone, ticking on the second boundary. */
-export function HeroClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
+export function LiveClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
   const [now, setNow] = useState(() => new Date());
   const format = useMemo(
     () =>
@@ -33,14 +33,14 @@ export function HeroClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
   }, []);
 
   return (
-    <span className="hero__clock" aria-hidden="true">
+    <span className="live-clock" aria-hidden="true">
       <i />
       {camera} · <time dateTime={now.toISOString()}>{format.format(now)}</time> {zoneLabel}
     </span>
   );
 }
 
-HeroClock.propTypes = {
+LiveClock.propTypes = {
   timeZone: PropTypes.string.isRequired,
   zoneLabel: PropTypes.string.isRequired,
   camera: PropTypes.string,

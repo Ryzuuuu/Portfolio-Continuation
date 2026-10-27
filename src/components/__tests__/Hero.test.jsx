@@ -21,7 +21,7 @@ describe("Hero", () => {
 
   it("shows a live clock in the profile's time zone", () => {
     const { container } = render(<Hero profile={profile} pageCount={6} />);
-    const clock = container.querySelector(".hero__clock");
+    const clock = container.querySelector(".live-clock");
 
     expect(clock).toHaveTextContent(/CAM 01 · \d{2}:\d{2}:\d{2} IST/);
     expect(clock).toHaveAttribute("aria-hidden", "true");

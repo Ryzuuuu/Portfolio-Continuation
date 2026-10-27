@@ -1,6 +1,7 @@
 import { Github, Linkedin, Mail, MoveUpRight } from "lucide-react";
 import { profileShape, sectionShape } from "../lib/propTypes.js";
 import { ContactForm } from "./ContactForm.jsx";
+import { CopyEmail } from "./CopyEmail.jsx";
 import { Doodle } from "./Doodle.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
@@ -28,9 +29,12 @@ export function ContactSection({ section, profile }) {
             I’m looking for hard problems and a team that ships. If you’re building something
             ambitious, let’s talk.
           </p>
-          <a className="contact__email" href={`mailto:${profile.email}`}>
-            {profile.email} <MoveUpRight size={16} aria-hidden="true" />
-          </a>
+          <div className="contact__email-row">
+            <a className="contact__email" href={`mailto:${profile.email}`}>
+              {profile.email} <MoveUpRight size={16} aria-hidden="true" />
+            </a>
+            <CopyEmail email={profile.email} />
+          </div>
           <div className="social-links">
             <a
               href={profile.social.github}
