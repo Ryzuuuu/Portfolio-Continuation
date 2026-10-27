@@ -58,11 +58,16 @@ export function loadEnv(source = process.env) {
       .filter(Boolean)
       .flatMap((entry) => {
         const origin = toOrigin(entry);
-        if (!origin) warnings.push(`Ignoring CLIENT_ORIGIN entry "${entry}" (expected e.g. https://example.com).`);
+        if (!origin)
+          warnings.push(
+            `Ignoring CLIENT_ORIGIN entry "${entry}" (expected e.g. https://example.com).`
+          );
         return origin ? [origin] : [];
       });
     if (clientOrigins.length === 0) {
-      warnings.push("CLIENT_ORIGIN has no valid origins; browsers on other origins will be blocked.");
+      warnings.push(
+        "CLIENT_ORIGIN has no valid origins; browsers on other origins will be blocked."
+      );
     }
   }
 
@@ -156,7 +161,10 @@ export function reportEnv(log = console) {
   const { mail } = env;
   const rows = [
     ["Port", String(env.port)],
-    ["CORS origins", `${env.clientOrigins.join(", ") || "(none)"}${env.usingDefaultOrigins ? " (dev default)" : ""}`],
+    [
+      "CORS origins",
+      `${env.clientOrigins.join(", ") || "(none)"}${env.usingDefaultOrigins ? " (dev default)" : ""}`,
+    ],
     ["MongoDB", env.mongodbUri ? describeMongoUri(env.mongodbUri) : "not configured"],
     ["Email sender", mail.configured ? `${mail.user} via smtp.gmail.com` : "not configured"],
     ["Notifications to", mail.configured ? mail.receiver : "-"],

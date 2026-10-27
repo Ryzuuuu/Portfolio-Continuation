@@ -23,28 +23,31 @@ The site renders without any configuration. The API also boots with no `.env` at
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Vite dev server and the API (with `--watch`) together |
-| `npm run build` | Production build into `dist/` |
-| `npm run preview` | Serves `dist/` locally on port 4173 |
-| `npm start` | Runs the API only |
-| `npm test` | Runs the test suite once (`npm run test:watch` to watch) |
+| Command           | What it does                                             |
+| ----------------- | -------------------------------------------------------- |
+| `npm run dev`     | Vite dev server and the API (with `--watch`) together    |
+| `npm run build`   | Production build into `dist/`                            |
+| `npm run preview` | Serves `dist/` locally on port 4173                      |
+| `npm start`       | Runs the API only                                        |
+| `npm test`        | Runs the test suite once (`npm run test:watch` to watch) |
+| `npm run lint`    | ESLint (React, hooks, jsx-a11y)                          |
+| `npm run format`  | Prettier (`npm run format:check` to verify only)         |
 
 ## Environment variables
 
 All of them live in `.env` (git-ignored). `.env.example` documents each one.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `PORT` | `5000` | API port |
-| `CLIENT_ORIGIN` | local Vite dev/preview origins | Comma-separated CORS allow-list. Set to your site's origin(s) in production. |
-| `TRUST_PROXY` | off | Number of reverse proxies in front of the API (usually `1` on Render, Railway, Fly.io, or behind Nginx), so rate limiting sees real visitor IPs. |
-| `MONGODB_URI` | unset | Optional backup store for messages |
-| `EMAIL_USER` | unset | Gmail address that sends the emails |
-| `EMAIL_APP_PASSWORD` | unset | 16-character Gmail App Password (not your account password) |
-| `CONTACT_RECEIVER_EMAIL` | `EMAIL_USER` | Where notifications are delivered |
-| `SEND_AUTO_REPLY` | `true` | Email visitors a short confirmation |
+| Variable                 | Default                        | Purpose                                                                                                                                          |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                   | `5000`                         | API port                                                                                                                                         |
+| `CLIENT_ORIGIN`          | local Vite dev/preview origins | Comma-separated CORS allow-list. Set to your site's origin(s) in production.                                                                     |
+| `TRUST_PROXY`            | off                            | Number of reverse proxies in front of the API (usually `1` on Render, Railway, Fly.io, or behind Nginx), so rate limiting sees real visitor IPs. |
+| `MONGODB_URI`            | unset                          | Optional backup store for messages                                                                                                               |
+| `EMAIL_USER`             | unset                          | Gmail address that sends the emails                                                                                                              |
+| `EMAIL_APP_PASSWORD`     | unset                          | 16-character Gmail App Password (not your account password)                                                                                      |
+| `CONTACT_RECEIVER_EMAIL` | `EMAIL_USER`                   | Where notifications are delivered                                                                                                                |
+| `SEND_AUTO_REPLY`        | `true`                         | Email visitors a short confirmation                                                                                                              |
+| `VITE_API_BASE_URL`      | unset (same origin)            | Build-time only. Set when the API is hosted on a different origin than the site, e.g. `https://api.yourdomain.com`.                              |
 
 ## Gmail App Password
 
@@ -90,11 +93,11 @@ Expect `201 Created`. The notification lands in `CONTACT_RECEIVER_EMAIL` with Re
    - emails the visitor a confirmation (if `SEND_AUTO_REPLY` is on). It never echoes their message, so the form can't relay arbitrary text through your Gmail;
    - saves a copy to MongoDB, if connected.
 
-| Outcome | Response |
-| --- | --- |
-| Notification sent **or** message stored | `201` |
-| Both the notification and the save failed | `502` |
-| Neither mail nor MongoDB is configured | `503` |
+| Outcome                                   | Response |
+| ----------------------------------------- | -------- |
+| Notification sent **or** message stored   | `201`    |
+| Both the notification and the save failed | `502`    |
+| Neither mail nor MongoDB is configured    | `503`    |
 
 Every individual failure is logged server-side. All visitor input is HTML-escaped before it goes into an email, and names are collapsed to a single line so they can't inject mail headers.
 
@@ -103,6 +106,22 @@ Every individual failure is logged server-side. All visitor input is HTML-escape
 ## Project structure
 
 ```
+src/
+  App.jsx                          composes the page from the sections below
+  data/                            all site content: edit these, not the components
+    profile.js                     name, bio, stats, email, socials, SITE_URL
+    nav.js                         section order, nav labels and kicker numbering
+    projects.js                    project cards (repo links optional)
+    experience.js                  timeline, education, certifications
+    skills.js                      toolbox pills
+  components/                      Header, Hero, AboutSection, ProjectsSection, ProjectCard,
+                                   ExperienceSection, ToolboxSection, ContactSection, ContactForm,
+                                   Footer, MangaPortrait, Reveal, SpotlightCard, SectionKicker,
+                                   ReadingProgress (+ __tests__/)
+  hooks/                           useScrollReveal, useReadingProgress
+  lib/                             contact API client, client-side validation, PropTypes shapes
+  styles.css                       design tokens and all styles
+public/                            favicon.svg/.ico, apple-touch-icon.png, og-image.png
 server/
   index.js                         startup: config summary, DB + SMTP checks, graceful shutdown
   app.js                           Express app: CORS allow-list, JSON limit, routes, errors
@@ -129,13 +148,15 @@ server/
 
 ## Deploying
 
+- Set `SITE_URL` in `src/data/profile.js` to the production origin before building. It fills in the canonical link, Open Graph/Twitter URLs and the JSON-LD, and generates `robots.txt` and `sitemap.xml` into `dist/`. Until it's set, the build prints a warning and leaves the URL-dependent tags out rather than shipping wrong ones.
+- If the API runs on a different origin than the site, build with `VITE_API_BASE_URL` set to it and add the site's origin to the API's `CLIENT_ORIGIN`.
 - Set `CLIENT_ORIGIN` to the exact origin(s) the site is served from, e.g. `https://yourdomain.com,https://www.yourdomain.com`.
 - Behind a host's proxy, set `TRUST_PROXY=1`. Without it every visitor shares the proxy's IP and one rate-limit bucket.
 - Configure secrets in your host's environment settings, not in committed files.
 
 ## Personalize it
 
-- Update the profile, experience, contact address, and social links in `src/App.jsx`.
-- Update project details in the `projects` array in `src/App.jsx`.
-- Tune the color tokens near the top of `src/styles.css`.
-- Update the page title and description in `index.html`.
+- Content lives in `src/data/`: profile, bio, stats, contact address and socials in `profile.js`; projects in `projects.js`; jobs, education and certifications in `experience.js`; skills in `skills.js`.
+- Add, rename or reorder sections in `src/data/nav.js`. The header nav and each section's numbered kicker both read from it.
+- Tune the color tokens near the top of `src/styles.css`. `--muted` and `--red-text` are the AA-contrast variants used for small text.
+- Update the page title, description and social-card copy in `index.html`, and regenerate `public/og-image.png` if the name or headline changes.
