@@ -12,7 +12,6 @@ const DEV_ORIGINS = [
   "http://localhost:4173",
   "http://127.0.0.1:4173",
 ];
-const OWNER_NAME = "Neelabja Mukhopadhyay";
 
 /**
  * Reads and validates configuration. Never throws: anything missing or malformed
@@ -63,12 +62,7 @@ export function loadEnv(source = process.env) {
 
   const mongodbUri = read("MONGODB_URI");
   if (!mongodbUri) {
-    warnings.push("MONGODB_URI is not set; messages will be emailed but not stored in MongoDB.");
-  }
-
-  const web3FormsAccessKey = read("WEB3FORMS_ACCESS_KEY");
-  if (!web3FormsAccessKey) {
-    warnings.push("WEB3FORMS_ACCESS_KEY not set; contact-form emails are disabled.");
+    warnings.push("MONGODB_URI is not set; contact messages will not be stored in MongoDB.");
   }
 
   const trustProxy = parseTrustProxy(read("TRUST_PROXY"));
@@ -85,11 +79,6 @@ export function loadEnv(source = process.env) {
     usingDefaultOrigins: rawOrigins === undefined,
     mongodbUri,
     trustProxy,
-    ownerName: OWNER_NAME,
-    mail: {
-      accessKey: web3FormsAccessKey,
-      configured: Boolean(web3FormsAccessKey),
-    },
   };
 
   return { env: deepFreeze(env), warnings };
@@ -135,7 +124,6 @@ export const env = loaded.env;
 const envWarnings = loaded.warnings;
 
 export function reportEnv(log = console) {
-  const { mail } = env;
   const rows = [
     ["Port", String(env.port)],
     [
@@ -143,7 +131,6 @@ export function reportEnv(log = console) {
       `${env.clientOrigins.join(", ") || "(none)"}${env.usingDefaultOrigins ? " (dev default)" : ""}`,
     ],
     ["MongoDB", env.mongodbUri ? describeMongoUri(env.mongodbUri) : "not configured"],
-    ["Email delivery", mail.configured ? "Web3Forms HTTPS API" : "not configured"],
     ["Trust proxy", String(env.trustProxy)],
   ];
   log.info("[config] Portfolio API configuration");

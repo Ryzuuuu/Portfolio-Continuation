@@ -1,6 +1,6 @@
 # Neelabja Mukhopadhyay — Portfolio
 
-A responsive, manga-inspired portfolio for AI/ML engineer Neelabja Mukhopadhyay, built with React, Vite, Express, and MongoDB. The front end is plain CSS plus native browser APIs: no animation or UI libraries. The contact form delivers email through Web3Forms, and when MongoDB is configured, keeps a backup copy of every message.
+A responsive, manga-inspired portfolio for AI/ML engineer Neelabja Mukhopadhyay, built with React, Vite, Express, and MongoDB. The front end is plain CSS plus native browser APIs: no animation or UI libraries. Render validates and rate-limits contact submissions; the Cloudflare-hosted browser sends the email through Web3Forms. MongoDB can optionally keep a backup copy.
 
 ## What's on the page
 
@@ -24,10 +24,10 @@ Requires Node.js 22.12 or newer.
    $env:TEMP = "$PWD\.tmp"; $env:TMP = $env:TEMP
    npm install --cache "$PWD\.npm-cache"
    ```
-2. Copy `.env.example` to `.env` and set `WEB3FORMS_ACCESS_KEY` (see [Web3Forms setup](#web3forms-setup)). Everything else is optional.
+2. Copy `.env.example` to `.env` and set `VITE_WEB3FORMS_ACCESS_KEY` for local contact form tests (see [Web3Forms setup](#web3forms-setup)). Everything else is optional.
 3. Run `npm run dev` and open the Vite URL shown in the terminal. Vite proxies `/api` to the Express server on port `5000`.
 
-The site renders without any configuration. The API also boots with no `.env` at all and logs a warning for each missing setting; the contact form then answers with `503` until Web3Forms or MongoDB is configured.
+The site renders without any configuration. The API also boots with no `.env` at all and logs a warning for each missing setting. Contact email requires the Vite key; the Render API independently validates and rate-limits submissions and stores them only when MongoDB is configured.
 
 ## Scripts
 
@@ -43,7 +43,7 @@ The site renders without any configuration. The API also boots with no `.env` at
 
 ## Environment variables
 
-All of them live in `.env` (git-ignored). `.env.example` documents each one.
+Server variables live in `.env` (git-ignored); `.env.example` documents them. Vite variables are read at build time.
 
 | Variable               | Default                        | Purpose                                                                                                                                          |
 | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -51,20 +51,20 @@ All of them live in `.env` (git-ignored). `.env.example` documents each one.
 | `CLIENT_ORIGIN`        | local Vite dev/preview origins | Comma-separated CORS allow-list. Set to your site's origin(s) in production.                                                                     |
 | `TRUST_PROXY`          | off                            | Number of reverse proxies in front of the API (usually `1` on Render, Railway, Fly.io, or behind Nginx), so rate limiting sees real visitor IPs. |
 | `MONGODB_URI`          | unset                          | Optional backup store for messages                                                                                                               |
-| `WEB3FORMS_ACCESS_KEY` | unset                          | Web3Forms access key used by the Render API to deliver contact-form email                                                                        |
-| `VITE_API_BASE_URL`    | unset (same origin)            | Build-time only. Set when the API is hosted on a different origin than the site, e.g. `https://api.yourdomain.com`.                              |
+| `VITE_API_BASE_URL`         | unset (same origin)            | Build-time only. Set when the API is hosted on a different origin than the site, e.g. `https://api.yourdomain.com`. |
+| `VITE_WEB3FORMS_ACCESS_KEY` | unset                          | Public Web3Forms key used by the browser to send contact email. Set in Cloudflare Pages build variables.          |
 
 ## Web3Forms setup
 
 1. Create an access key at <https://web3forms.com/> and verify the recipient email address with Web3Forms.
-2. Set `WEB3FORMS_ACCESS_KEY` in the API environment (locally in `.env`; in production, in Render's Environment settings). Keep it out of source control and the browser bundle.
-3. Restart or redeploy the API. Its startup configuration reports `Web3Forms HTTPS API` when the key is present. That confirms configuration only; send a real test from the deployed site to verify delivery.
+2. Set `VITE_WEB3FORMS_ACCESS_KEY` in local `.env` for development and in Cloudflare Pages → Settings → Environment variables for production. This key is intentionally public: Web3Forms requires its free form endpoint to be called from the browser, and the key is included in the frontend build. Do not put it in Render.
+3. Trigger a new Cloudflare Pages deployment so Vite includes the key, then send a test using the deployed contact form.
 
-Web3Forms delivers the notification to the recipient configured for the access key. The visitor's email is included as the Reply-To address, so replying to the notification responds to them. Web3Forms' built-in visitor autoresponder is a Pro feature; enable it in the Web3Forms dashboard if you want visitor confirmations.
+Web3Forms delivers the notification to the recipient configured for the access key. The visitor's email is included as Reply-To, so replying to the notification responds to them. Web3Forms' built-in visitor autoresponder is a Pro feature. Its documentation also notes that some free hosting subdomains may be blocked; if the deployed `pages.dev` site receives a domain restriction error, use a custom domain and request approval or choose a paid plan.
 
 ### Send a test message
 
-With the API running (`npm start` or `npm run dev`), submit a test message using an inbox you can check:
+With the API and Vite running (`npm run dev`), submit a test message using an inbox you can check. The form submits to Render first for validation/rate limiting, then Web3Forms for email delivery.
 
 ```bash
 curl -i -X POST http://localhost:5000/api/contact \
@@ -72,7 +72,7 @@ curl -i -X POST http://localhost:5000/api/contact \
   -d '{"name":"Test Visitor","email":"you@another-inbox.com","message":"Testing the contact form."}'
 ```
 
-Expect `201 Created`. The notification is delivered to the recipient verified with the Web3Forms access key. The rate limit allows 5 requests per 15 minutes per IP.
+The `curl` request below checks only Render validation/rate limiting and optional MongoDB storage; it does not send email. Use the website form to test delivery. The rate limit allows 5 requests per 15 minutes per IP.
 
 ## How the contact form works
 
@@ -80,17 +80,14 @@ Expect `201 Created`. The notification is delivered to the recipient verified wi
 
 1. **Rate limiter**: 5 requests per IP per 15 minutes, then `429`.
 2. **Validation**: name (≤ 80 chars), email (≤ 254, same rules as `<input type="email">`), message (≤ 3000), plus the hidden `website` honeypot field. Bots that fill it get `400`. Invalid input gets `400` with a `fields` object of per-field messages.
-3. **Controller**: sends you a notification through Web3Forms (Reply-To = the visitor) and saves a copy to MongoDB if connected.
+3. **Controller**: saves a backup to MongoDB if connected, then returns validated contact data to the client.
+4. **Browser**: sends the email directly through Web3Forms over HTTPS (Reply-To = the visitor).
 
-| Outcome                                     | Response |
-| ------------------------------------------- | -------- |
-| Notification sent **or** message stored     | `201`    |
-| Both notification and MongoDB save failed   | `502`    |
-| Neither Web3Forms nor MongoDB is configured | `503`    |
+The API responds with `200` after validation; the form shows success only after Web3Forms confirms email delivery. If delivery fails, the visitor sees an error and can retry. If MongoDB is enabled, a failed email followed by a retry can create duplicate backup records.
 
-Every individual failure is logged server-side. Names are collapsed to a single line during validation so they can't inject email headers.
+MongoDB backup failures are logged but do not prevent email delivery. Names are collapsed to a single line during validation.
 
-`GET /api/health` reports `{ status, database, mail }`. The `mail` value only indicates whether the Web3Forms key is configured; a successful contact-form test is needed to verify delivery.
+`GET /api/health` reports `{ status, database, mail }`; `mail` indicates that email delivery is handled client-side.
 
 ## Project structure
 
@@ -131,7 +128,6 @@ server/
     errorHandler.js                JSON 404s, bad JSON, oversized bodies, 500s
   controllers/contactController.js mail + DB in parallel, decides the status code
   services/
-    mailService.js                 sends contact notifications through Web3Forms
     messageService.js              saveMessage (null when MongoDB isn't connected)
   models/Message.js                Mongoose schema
   __tests__/                       API, environment, and email delivery tests
@@ -142,6 +138,7 @@ server/
 - Set `SITE_URL` in `src/data/profile.js` to the production origin before building. It fills in the canonical link, Open Graph/Twitter URLs and the JSON-LD, and generates `robots.txt` and `sitemap.xml` into `dist/`. Until it's set, the build prints a warning and leaves the URL-dependent tags out rather than shipping wrong ones.
 - If the API runs on a different origin than the site, build with `VITE_API_BASE_URL` set to it and add the site's origin to the API's `CLIENT_ORIGIN`.
 - Set `CLIENT_ORIGIN` to the exact origin(s) the site is served from, e.g. `https://yourdomain.com,https://www.yourdomain.com`.
+- Set `VITE_WEB3FORMS_ACCESS_KEY` in Cloudflare Pages build environment variables, then trigger a new Pages deployment.
 - Behind a host's proxy, set `TRUST_PROXY=1`. Without it every visitor shares the proxy's IP and one rate-limit bucket.
 - Configure secrets in your host's environment settings, not in committed files.
 

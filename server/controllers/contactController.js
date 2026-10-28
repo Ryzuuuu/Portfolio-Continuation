@@ -1,51 +1,23 @@
-import { isMailConfigured, sendContactNotification } from "../services/mailService.js";
-import { isStorageAvailable, saveMessage } from "../services/messageService.js";
+import { saveMessage } from "../services/messageService.js";
 
 /**
- * Email is the primary channel and MongoDB the backup. The request only fails when
- * neither one took the message; every individual failure is logged either way.
+ * The browser sends email through Web3Forms after this endpoint validates and rate
+ * limits the request. MongoDB remains an optional message backup.
  */
 export async function submitContact(request, response, next) {
   const contact = request.contact;
 
   try {
-    if (!isMailConfigured() && !isStorageAvailable()) {
+    let stored = null;
+    try {
+      stored = await saveMessage(contact);
+    } catch (error) {
       console.error(
-        `[contact] Neither email nor MongoDB is available; message from ${contact.email} was not delivered.`
-      );
-      return response.status(503).json({
-        error: "The contact service is temporarily unavailable. Please email me directly.",
-      });
-    }
-
-    const [notification, stored] = await Promise.allSettled([
-      sendContactNotification(contact),
-      saveMessage(contact),
-    ]);
-
-    if (notification.status === "rejected") {
-      console.error(
-        `[contact] Notification email failed for message from ${contact.email}: ${notification.reason?.message ?? notification.reason}`
+        `[contact] Saving message from ${contact.email} to MongoDB failed: ${error?.message ?? error}`
       );
     }
-    if (stored.status === "rejected") {
-      console.error(
-        `[contact] Saving message from ${contact.email} to MongoDB failed: ${stored.reason?.message ?? stored.reason}`
-      );
-    }
-    const emailed = notification.status === "fulfilled" && notification.value !== null;
-    const saved = stored.status === "fulfilled" && stored.value !== null;
 
-    if (!emailed && !saved) {
-      return response.status(502).json({
-        error: "Your message couldn't be delivered right now. Please try again in a moment.",
-      });
-    }
-
-    if (!emailed) {
-      console.warn(`[contact] Message from ${contact.email} is stored in MongoDB only.`);
-    }
-    return response.status(201).json({ message: "Message received. Thanks for reaching out!" });
+    return response.status(200).json({ message: "Contact validated.", stored: stored !== null });
   } catch (error) {
     return next(error);
   }

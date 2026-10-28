@@ -2,7 +2,6 @@ import cors from "cors";
 import express from "express";
 import { isDbConfigured, isDbConnected } from "./config/db.js";
 import { env } from "./config/env.js";
-import { isMailConfigured } from "./services/mailService.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { createContactRouter } from "./routes/contactRoutes.js";
 
@@ -29,7 +28,7 @@ export function createApp() {
     response.json({
       status: "ok",
       database,
-      mail: isMailConfigured() ? "configured" : "not configured",
+      mail: "handled by website",
     });
   });
 

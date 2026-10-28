@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
-import { submitContact } from "../lib/api.js";
+import { sendContactEmail, submitContact } from "../lib/api.js";
 import {
   CONTACT_FIELDS,
   CONTACT_LIMITS,
@@ -37,8 +37,9 @@ export function ContactForm() {
 
     setStatus({ state: "sending", message: "" });
     try {
-      const message = await submitContact(payload);
-      setStatus({ state: "success", message });
+      await submitContact(payload);
+      await sendContactEmail(payload);
+      setStatus({ state: "success", message: "Message sent. Thanks for reaching out!" });
       form.reset();
     } catch (error) {
       setErrors(error.fields ?? {});
