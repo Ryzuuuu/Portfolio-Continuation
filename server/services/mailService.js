@@ -1,44 +1,45 @@
 import { env } from "../config/env.js";
-import { getTransporter } from "../config/mailer.js";
-import { autoReplyEmail } from "../templates/autoReplyEmail.js";
-import { contactNotificationEmail } from "../templates/contactNotificationEmail.js";
 
 export function isMailConfigured() {
-  return getTransporter() !== null;
+  return env.mail.configured;
 }
 
 /**
- * Emails the owner. Reply-To is the visitor, so hitting Reply in Gmail answers them.
- * Resolves to null when mail isn't configured; rejects if SMTP fails.
+ * Submits the contact message to Web3Forms. The visitor is the reply-to address.
+ * Resolves to null when delivery isn't configured; rejects if the provider fails.
  */
 export async function sendContactNotification(contact) {
-  const transporter = getTransporter();
-  if (!transporter) return null;
+  if (!env.mail.configured) return null;
 
-  const { subject, text, html } = contactNotificationEmail(contact);
-  return transporter.sendMail({
-    from: { name: "Portfolio contact form", address: env.mail.user },
-    to: env.mail.receiver,
-    replyTo: { name: contact.name, address: contact.email },
-    subject,
-    text,
-    html,
+  const response = await fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    signal: AbortSignal.timeout(10_000),
+    body: JSON.stringify({
+      access_key: env.mail.accessKey,
+      name: contact.name,
+      email: contact.email,
+      message: contact.message,
+      subject: `New portfolio message from ${contact.name}`,
+      from_name: "Portfolio contact form",
+      replyto: contact.email,
+    }),
   });
-}
 
-/** Sends the visitor a short confirmation. Resolves to null when mail isn't configured. */
-export async function sendAutoReply(contact) {
-  const transporter = getTransporter();
-  if (!transporter) return null;
+  let result;
+  try {
+    result = await response.json();
+  } catch (error) {
+    throw new Error(`Web3Forms returned an invalid response (HTTP ${response.status}).`, {
+      cause: error,
+    });
+  }
 
-  const { subject, text, html } = autoReplyEmail({ name: contact.name, ownerName: env.ownerName });
-  return transporter.sendMail({
-    from: { name: env.ownerName, address: env.mail.user },
-    to: { name: contact.name, address: contact.email },
-    subject,
-    text,
-    html,
-    // RFC 3834: marks this as automatic so other autoresponders don't reply to it.
-    headers: { "Auto-Submitted": "auto-replied", "X-Auto-Response-Suppress": "All" },
-  });
+  if (!response.ok || !result || result.success !== true) {
+    const message =
+      typeof result?.message === "string" ? result.message : "Web3Forms rejected the submission.";
+    throw new Error(`${message} (HTTP ${response.status}).`);
+  }
+
+  return result;
 }

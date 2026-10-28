@@ -4,22 +4,9 @@ import { createApp } from "../app.js";
 import * as mail from "../services/mailService.js";
 import * as storage from "../services/messageService.js";
 
-const flags = vi.hoisted(() => ({ sendAutoReply: true }));
-
-vi.mock("../config/env.js", async (importOriginal) => {
-  const actual = await importOriginal();
-  const mailConfig = {
-    ...actual.env.mail,
-    get sendAutoReply() {
-      return flags.sendAutoReply;
-    },
-  };
-  return { ...actual, env: { ...actual.env, mail: mailConfig } };
-});
 vi.mock("../services/mailService.js", () => ({
   isMailConfigured: vi.fn(),
   sendContactNotification: vi.fn(),
-  sendAutoReply: vi.fn(),
 }));
 vi.mock("../services/messageService.js", () => ({
   isStorageAvailable: vi.fn(),
@@ -31,14 +18,11 @@ const post = (app, body) => request(app).post("/api/contact").send(body);
 
 let app;
 beforeEach(() => {
-  flags.sendAutoReply = true;
   vi.mocked(mail.isMailConfigured).mockReturnValue(true);
   vi.mocked(mail.sendContactNotification).mockResolvedValue({ messageId: "notification" });
-  vi.mocked(mail.sendAutoReply).mockResolvedValue({ messageId: "auto-reply" });
   vi.mocked(storage.isStorageAvailable).mockReturnValue(true);
   vi.mocked(storage.saveMessage).mockImplementation(async (contact) => ({ _id: "1", ...contact }));
   vi.spyOn(console, "error").mockImplementation(() => {});
-  vi.spyOn(console, "warn").mockImplementation(() => {});
   app = createApp();
 });
 afterEach(() => {
@@ -47,14 +31,13 @@ afterEach(() => {
 });
 
 describe("POST /api/contact: success paths", () => {
-  it("emails, stores and auto-replies in parallel, then returns 201", async () => {
+  it("emails and stores in parallel, then returns 201", async () => {
     const response = await post(app, valid);
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual({ message: "Message received. Thanks for reaching out!" });
     expect(mail.sendContactNotification).toHaveBeenCalledWith(valid);
     expect(storage.saveMessage).toHaveBeenCalledWith(valid);
-    expect(mail.sendAutoReply).toHaveBeenCalledWith(valid);
   });
 
   it("collapses whitespace in the name so it can't inject mail headers", async () => {
@@ -67,7 +50,7 @@ describe("POST /api/contact: success paths", () => {
 
   it("succeeds when the notification fails but MongoDB stored the message", async () => {
     vi.mocked(mail.sendContactNotification).mockRejectedValue(
-      Object.assign(new Error("boom"), { code: "EAUTH" })
+      new Error("Web3Forms rejected the submission.")
     );
 
     const response = await post(app, valid);
@@ -92,27 +75,11 @@ describe("POST /api/contact: success paths", () => {
     expect(response.status).toBe(201);
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("MongoDB failed"));
   });
-
-  it("ignores a failed auto-reply", async () => {
-    vi.mocked(mail.sendAutoReply).mockRejectedValue(new Error("mailbox unavailable"));
-
-    const response = await post(app, valid);
-
-    expect(response.status).toBe(201);
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("Auto-reply"));
-  });
-
-  it("skips the auto-reply when SEND_AUTO_REPLY is off", async () => {
-    flags.sendAutoReply = false;
-
-    expect((await post(app, valid)).status).toBe(201);
-    expect(mail.sendAutoReply).not.toHaveBeenCalled();
-  });
 });
 
 describe("POST /api/contact: failure paths", () => {
   it("returns 502 when both the notification and the MongoDB save fail", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("smtp down"));
+    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("Web3Forms unavailable"));
     vi.mocked(storage.saveMessage).mockRejectedValue(new Error("db down"));
 
     const response = await post(app, valid);
@@ -123,7 +90,7 @@ describe("POST /api/contact: failure paths", () => {
   });
 
   it("returns 502 when the email fails and MongoDB isn't connected", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("smtp down"));
+    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("Web3Forms unavailable"));
     vi.mocked(storage.saveMessage).mockResolvedValue(null);
 
     expect((await post(app, valid)).status).toBe(502);

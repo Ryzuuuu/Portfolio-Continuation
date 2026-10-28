@@ -1,10 +1,4 @@
-import { env } from "../config/env.js";
-import { describeSmtpError } from "../config/mailer.js";
-import {
-  isMailConfigured,
-  sendAutoReply,
-  sendContactNotification,
-} from "../services/mailService.js";
+import { isMailConfigured, sendContactNotification } from "../services/mailService.js";
 import { isStorageAvailable, saveMessage } from "../services/messageService.js";
 
 /**
@@ -24,15 +18,14 @@ export async function submitContact(request, response, next) {
       });
     }
 
-    const [notification, stored, autoReply] = await Promise.allSettled([
+    const [notification, stored] = await Promise.allSettled([
       sendContactNotification(contact),
       saveMessage(contact),
-      env.mail.sendAutoReply ? sendAutoReply(contact) : Promise.resolve(null),
     ]);
 
     if (notification.status === "rejected") {
       console.error(
-        `[contact] Notification email failed for message from ${contact.email}: ${describeSmtpError(notification.reason)}`
+        `[contact] Notification email failed for message from ${contact.email}: ${notification.reason?.message ?? notification.reason}`
       );
     }
     if (stored.status === "rejected") {
@@ -40,12 +33,6 @@ export async function submitContact(request, response, next) {
         `[contact] Saving message from ${contact.email} to MongoDB failed: ${stored.reason?.message ?? stored.reason}`
       );
     }
-    if (autoReply.status === "rejected") {
-      console.warn(
-        `[contact] Auto-reply to ${contact.email} failed: ${describeSmtpError(autoReply.reason)}`
-      );
-    }
-
     const emailed = notification.status === "fulfilled" && notification.value !== null;
     const saved = stored.status === "fulfilled" && stored.value !== null;
 
