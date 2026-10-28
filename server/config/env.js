@@ -12,7 +12,6 @@ const DEV_ORIGINS = [
   "http://localhost:4173",
   "http://127.0.0.1:4173",
 ];
-const GMAIL_APP_PASSWORD_LENGTH = 16;
 const OWNER_NAME = "Neelabja Mukhopadhyay";
 
 /**
@@ -25,15 +24,6 @@ export function loadEnv(source = process.env) {
   const read = (name) => {
     const value = source[name];
     return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
-  };
-
-  const readBoolean = (name, fallback) => {
-    const raw = read(name);
-    if (raw === undefined) return fallback;
-    if (/^(true|1|yes|on)$/i.test(raw)) return true;
-    if (/^(false|0|no|off)$/i.test(raw)) return false;
-    warnings.push(`${name}="${raw}" is not true/false; using ${fallback}.`);
-    return fallback;
   };
 
   let port = DEFAULT_PORT;
@@ -76,19 +66,9 @@ export function loadEnv(source = process.env) {
     warnings.push("MONGODB_URI is not set; messages will be emailed but not stored in MongoDB.");
   }
 
-  const emailUser = read("EMAIL_USER");
-  // Google displays App Passwords as four groups of four; the spaces aren't part of it.
-  const emailAppPassword = read("EMAIL_APP_PASSWORD")?.replace(/\s+/g, "");
-  if (!emailUser || !emailAppPassword) {
-    const missing = [!emailUser && "EMAIL_USER", !emailAppPassword && "EMAIL_APP_PASSWORD"]
-      .filter(Boolean)
-      .join(" and ");
-    warnings.push(`${missing} not set; contact-form emails are disabled.`);
-  } else if (emailAppPassword.length !== GMAIL_APP_PASSWORD_LENGTH) {
-    warnings.push(
-      `EMAIL_APP_PASSWORD is ${emailAppPassword.length} characters, but Gmail App Passwords are ` +
-        `${GMAIL_APP_PASSWORD_LENGTH}. Make sure it's an App Password, not your Google account password.`
-    );
+  const web3FormsAccessKey = read("WEB3FORMS_ACCESS_KEY");
+  if (!web3FormsAccessKey) {
+    warnings.push("WEB3FORMS_ACCESS_KEY not set; contact-form emails are disabled.");
   }
 
   const trustProxy = parseTrustProxy(read("TRUST_PROXY"));
@@ -107,11 +87,8 @@ export function loadEnv(source = process.env) {
     trustProxy,
     ownerName: OWNER_NAME,
     mail: {
-      user: emailUser,
-      appPassword: emailAppPassword,
-      receiver: read("CONTACT_RECEIVER_EMAIL") ?? emailUser,
-      configured: Boolean(emailUser && emailAppPassword),
-      sendAutoReply: readBoolean("SEND_AUTO_REPLY", true),
+      accessKey: web3FormsAccessKey,
+      configured: Boolean(web3FormsAccessKey),
     },
   };
 
@@ -166,9 +143,7 @@ export function reportEnv(log = console) {
       `${env.clientOrigins.join(", ") || "(none)"}${env.usingDefaultOrigins ? " (dev default)" : ""}`,
     ],
     ["MongoDB", env.mongodbUri ? describeMongoUri(env.mongodbUri) : "not configured"],
-    ["Email sender", mail.configured ? `${mail.user} via smtp.gmail.com` : "not configured"],
-    ["Notifications to", mail.configured ? mail.receiver : "-"],
-    ["Auto-reply", mail.configured ? (mail.sendAutoReply ? "on" : "off") : "-"],
+    ["Email delivery", mail.configured ? "Web3Forms HTTPS API" : "not configured"],
     ["Trust proxy", String(env.trustProxy)],
   ];
   log.info("[config] Portfolio API configuration");
