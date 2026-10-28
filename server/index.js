@@ -1,7 +1,6 @@
 import { createApp } from "./app.js";
 import { connectDb, disconnectDb } from "./config/db.js";
 import { env, reportEnv } from "./config/env.js";
-import { closeMailer, verifyMailer } from "./config/mailer.js";
 
 reportEnv();
 
@@ -20,7 +19,6 @@ server.on("error", (error) => {
 
 // Both run in the background and only log on failure; the API serves requests meanwhile.
 connectDb();
-verifyMailer();
 
 process.on("unhandledRejection", (reason) => {
   console.error("[api] Unhandled promise rejection:", reason);
@@ -33,7 +31,6 @@ async function shutdown(signal) {
   console.info(`[api] ${signal} received, shutting down.`);
   setTimeout(() => process.exit(1), 10_000).unref();
   server.close();
-  closeMailer();
   await disconnectDb();
   process.exit(0);
 }
