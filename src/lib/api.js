@@ -35,3 +35,50 @@ export async function submitContact(payload) {
   }
   return result.message || "Message received. Thanks for reaching out!";
 }
+
+/** Sends the validated contact message through Web3Forms from the browser. */
+export async function sendContactEmail(payload) {
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim();
+  if (!accessKey) {
+    throw new ContactRequestError("Email delivery isn't configured yet. Please try again later.");
+  }
+
+  let response;
+  try {
+    response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      signal: AbortSignal.timeout(10_000),
+      body: JSON.stringify({
+        access_key: accessKey,
+        name: payload.name,
+        email: payload.email,
+        message: payload.message,
+        subject: `New portfolio message from ${payload.name}`,
+        from_name: "Portfolio contact form",
+        replyto: payload.email,
+      }),
+    });
+  } catch {
+    throw new ContactRequestError(
+      "Couldn't connect to the email service. Please try again in a moment."
+    );
+  }
+
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw new ContactRequestError(
+      `The email service returned an invalid response (HTTP ${response.status}).`
+    );
+  }
+
+  if (!response.ok || !result || result.success !== true) {
+    const message =
+      typeof result?.message === "string"
+        ? result.message
+        : "The email service couldn't send your message. Please try again later.";
+    throw new ContactRequestError(`${message} (HTTP ${response.status}).`);
+  }
+}

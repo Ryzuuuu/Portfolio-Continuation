@@ -1,15 +1,9 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../app.js";
-import * as mail from "../services/mailService.js";
 import * as storage from "../services/messageService.js";
 
-vi.mock("../services/mailService.js", () => ({
-  isMailConfigured: vi.fn(),
-  sendContactNotification: vi.fn(),
-}));
 vi.mock("../services/messageService.js", () => ({
-  isStorageAvailable: vi.fn(),
   saveMessage: vi.fn(),
 }));
 
@@ -18,9 +12,6 @@ const post = (app, body) => request(app).post("/api/contact").send(body);
 
 let app;
 beforeEach(() => {
-  vi.mocked(mail.isMailConfigured).mockReturnValue(true);
-  vi.mocked(mail.sendContactNotification).mockResolvedValue({ messageId: "notification" });
-  vi.mocked(storage.isStorageAvailable).mockReturnValue(true);
   vi.mocked(storage.saveMessage).mockImplementation(async (contact) => ({ _id: "1", ...contact }));
   vi.spyOn(console, "error").mockImplementation(() => {});
   app = createApp();
@@ -31,80 +22,36 @@ afterEach(() => {
 });
 
 describe("POST /api/contact: success paths", () => {
-  it("emails and stores in parallel, then returns 201", async () => {
+  it("validates the message, stores it when available, and returns 200", async () => {
     const response = await post(app, valid);
 
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual({ message: "Message received. Thanks for reaching out!" });
-    expect(mail.sendContactNotification).toHaveBeenCalledWith(valid);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "Contact validated.", stored: true });
     expect(storage.saveMessage).toHaveBeenCalledWith(valid);
   });
 
-  it("collapses whitespace in the name so it can't inject mail headers", async () => {
+  it("collapses whitespace in the name before returning validated contact data", async () => {
     await post(app, { ...valid, name: "  Ada\r\nBcc: victim@example.com  " });
 
-    expect(mail.sendContactNotification).toHaveBeenCalledWith(
+    expect(storage.saveMessage).toHaveBeenCalledWith(
       expect.objectContaining({ name: "Ada Bcc: victim@example.com" })
     );
   });
 
-  it("succeeds when the notification fails but MongoDB stored the message", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(
-      new Error("Web3Forms rejected the submission.")
-    );
+  it("still accepts a validated message when the optional MongoDB backup fails", async () => {
+    vi.mocked(storage.saveMessage).mockRejectedValue(new Error("database down"));
 
     const response = await post(app, valid);
 
-    expect(response.status).toBe(201);
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("Notification email failed")
-    );
-  });
-
-  it("succeeds email-only when MongoDB isn't connected", async () => {
-    vi.mocked(storage.saveMessage).mockResolvedValue(null);
-
-    expect((await post(app, valid)).status).toBe(201);
-  });
-
-  it("succeeds when the MongoDB write throws but the email went out", async () => {
-    vi.mocked(storage.saveMessage).mockRejectedValue(new Error("write concern timeout"));
-
-    const response = await post(app, valid);
-
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "Contact validated.", stored: false });
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("MongoDB failed"));
   });
-});
 
-describe("POST /api/contact: failure paths", () => {
-  it("returns 502 when both the notification and the MongoDB save fail", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("Web3Forms unavailable"));
-    vi.mocked(storage.saveMessage).mockRejectedValue(new Error("db down"));
-
-    const response = await post(app, valid);
-
-    expect(response.status).toBe(502);
-    expect(response.body.error).toMatch(/couldn't be delivered/);
-    expect(console.error).toHaveBeenCalledTimes(2);
-  });
-
-  it("returns 502 when the email fails and MongoDB isn't connected", async () => {
-    vi.mocked(mail.sendContactNotification).mockRejectedValue(new Error("Web3Forms unavailable"));
+  it("accepts a validated message when MongoDB isn't configured", async () => {
     vi.mocked(storage.saveMessage).mockResolvedValue(null);
 
-    expect((await post(app, valid)).status).toBe(502);
-  });
-
-  it("returns 503 without trying when neither mail nor MongoDB is available", async () => {
-    vi.mocked(mail.isMailConfigured).mockReturnValue(false);
-    vi.mocked(storage.isStorageAvailable).mockReturnValue(false);
-
-    const response = await post(app, valid);
-
-    expect(response.status).toBe(503);
-    expect(mail.sendContactNotification).not.toHaveBeenCalled();
-    expect(storage.saveMessage).not.toHaveBeenCalled();
+    expect((await post(app, valid)).status).toBe(200);
   });
 });
 
@@ -114,7 +61,7 @@ describe("POST /api/contact: validation", () => {
 
     expect(response.status).toBe(400);
     expect(Object.keys(response.body.fields)).toEqual(["name", "email", "message"]);
-    expect(mail.sendContactNotification).not.toHaveBeenCalled();
+    expect(storage.saveMessage).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -145,12 +92,11 @@ describe("POST /api/contact: validation", () => {
     expect(response.status).toBe(400);
   });
 
-  it("rejects honeypot submissions without touching mail or storage", async () => {
+  it("rejects honeypot submissions without storing them", async () => {
     const response = await post(app, { ...valid, website: "https://spam.example" });
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: "Unable to send this message." });
-    expect(mail.sendContactNotification).not.toHaveBeenCalled();
     expect(storage.saveMessage).not.toHaveBeenCalled();
   });
 
@@ -174,7 +120,7 @@ describe("rate limiting", () => {
     }
     const limited = await post(app, valid);
 
-    expect(statuses).toEqual([201, 201, 201, 201, 201]);
+    expect(statuses).toEqual([200, 200, 200, 200, 200]);
     expect(limited.status).toBe(429);
     expect(limited.body.error).toMatch(/Too many messages/);
     expect(limited.headers).toHaveProperty("ratelimit");
@@ -213,6 +159,10 @@ describe("CORS and routing", () => {
     const response = await request(app).get("/api/health");
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ status: "ok", database: "not configured", mail: "configured" });
+    expect(response.body).toEqual({
+      status: "ok",
+      database: "not configured",
+      mail: "handled by website",
+    });
   });
 });

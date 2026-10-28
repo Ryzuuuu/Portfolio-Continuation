@@ -7,20 +7,9 @@ describe("loadEnv", () => {
 
     expect(env.port).toBe(5000);
     expect(env.mongodbUri).toBeUndefined();
-    expect(env.mail.configured).toBe(false);
     expect(env.trustProxy).toBe(false);
     expect(env.clientOrigins).toContain("http://localhost:5173");
-    expect(warnings.join("\n")).toMatch(/CLIENT_ORIGIN.*MONGODB_URI.*WEB3FORMS_ACCESS_KEY/s);
-  });
-
-  it("configures Web3Forms from its access key", () => {
-    const { env, warnings } = loadEnv({ WEB3FORMS_ACCESS_KEY: "test-access-key" });
-
-    expect(env.mail.accessKey).toBe("test-access-key");
-    expect(env.mail.configured).toBe(true);
-    expect(warnings).not.toContain(
-      "WEB3FORMS_ACCESS_KEY not set; contact-form emails are disabled."
-    );
+    expect(warnings.join("\n")).toMatch(/CLIENT_ORIGIN.*MONGODB_URI/s);
   });
 
   it("normalises the CORS allow-list and drops invalid entries", () => {

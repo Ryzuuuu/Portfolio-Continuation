@@ -12,9 +12,11 @@ let fetchMock;
 beforeEach(() => {
   fetchMock = vi.fn();
   vi.stubGlobal("fetch", fetchMock);
+  vi.stubEnv("VITE_WEB3FORMS_ACCESS_KEY", "test-public-key");
 });
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 async function fillValidForm(user) {
@@ -58,8 +60,15 @@ describe("ContactForm", () => {
   });
 
   it("shows a sending state, then the success message, and resets the form", async () => {
-    let respond;
-    fetchMock.mockReturnValue(new Promise((resolve) => (respond = resolve)));
+    let respondApi;
+    fetchMock
+      .mockReturnValueOnce(new Promise((resolve) => (respondApi = resolve)))
+      .mockResolvedValueOnce(
+        jsonResponse(200, {
+          success: true,
+          message: "Email sent successfully.",
+        })
+      );
     const user = userEvent.setup();
     render(<ContactForm />);
 
@@ -71,9 +80,10 @@ describe("ContactForm", () => {
     await user.click(submitButton());
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    respond(await jsonResponse(201, { message: "Message received. Thanks for reaching out!" }));
+    respondApi(await jsonResponse(200, { message: "Contact validated.", stored: false }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Message received.");
+    expect(await screen.findByRole("status")).toHaveTextContent("Message sent.");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(document.querySelector(".form-stamp")).toHaveAttribute("aria-hidden", "true");
     expect(submitButton()).toHaveTextContent("SEND THE MESSAGE");
     expect(screen.getByLabelText("YOUR NAME")).toHaveValue("");
@@ -85,6 +95,14 @@ describe("ContactForm", () => {
       email: "ada@example.com",
       message: "Let's build something.",
       website: "",
+    });
+    expect(fetchMock.mock.calls[1][0]).toBe("https://api.web3forms.com/submit");
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toMatchObject({
+      access_key: "test-public-key",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      message: "Let's build something.",
+      replyto: "ada@example.com",
     });
   });
 
@@ -102,6 +120,22 @@ describe("ContactForm", () => {
       "Your message couldn't be delivered right now."
     );
     expect(screen.getByRole("status")).toHaveClass("form-feedback--error");
+    expect(screen.getByLabelText("YOUR NAME")).toHaveValue("Ada Lovelace");
+  });
+
+  it("shows provider errors and keeps what the visitor typed", async () => {
+    fetchMock
+      .mockReturnValueOnce(jsonResponse(200, { message: "Contact validated." }))
+      .mockReturnValueOnce(
+        jsonResponse(403, { success: false, message: "This method is not allowed." })
+      );
+    const user = userEvent.setup();
+    render(<ContactForm />);
+
+    await fillValidForm(user);
+    await user.click(submitButton());
+
+    expect(await screen.findByRole("status")).toHaveTextContent("This method is not allowed.");
     expect(screen.getByLabelText("YOUR NAME")).toHaveValue("Ada Lovelace");
   });
 
