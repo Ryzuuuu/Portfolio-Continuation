@@ -136,7 +136,7 @@ server/
 ## Deploying
 
 - Set `SITE_URL` in `src/data/profile.js` to the production origin before building. It fills in the canonical link, Open Graph/Twitter URLs and the JSON-LD, and generates `robots.txt` and `sitemap.xml` into `dist/`. Until it's set, the build prints a warning and leaves the URL-dependent tags out rather than shipping wrong ones.
-- If the API runs on a different origin than the site, build with `VITE_API_BASE_URL` set to it and add the site's origin to the API's `CLIENT_ORIGIN`.
+- Set `VITE_API_BASE_URL` to `https://portfolio-contact-api-95v3.onrender.com` for the production Render API.
 - Set `CLIENT_ORIGIN` to the exact origin(s) the site is served from, e.g. `https://yourdomain.com,https://www.yourdomain.com`.
 - Set `VITE_WEB3FORMS_ACCESS_KEY` in Cloudflare Pages build environment variables, then trigger a new Pages deployment.
 - Behind a host's proxy, set `TRUST_PROXY=1`. Without it every visitor shares the proxy's IP and one rate-limit bucket.
