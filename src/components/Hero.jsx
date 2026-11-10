@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
-import { ArrowDown, ArrowDownRight } from "lucide-react";
+import { ArrowDownRight } from "lucide-react";
 import { useRef } from "react";
 import { usePointerTilt } from "../hooks/usePointerTilt.js";
 import { pad2 } from "../lib/format.js";
 import { profileShape } from "../lib/propTypes.js";
 import { SpeedLines } from "./hero/SpeedLines.jsx";
-import { LiveClock } from "./LiveClock.jsx";
 import { MangaPortrait } from "./MangaPortrait.jsx";
 
 export function Hero({ profile, pageCount }) {
@@ -19,10 +18,6 @@ export function Hero({ profile, pageCount }) {
       <div className="hero__meta mono">
         <span>
           {location} · {profile.edition}
-        </span>
-        <LiveClock timeZone={profile.timeZone} zoneLabel={profile.timeZoneLabel} />
-        <span className="hero__scroll">
-          SCROLL TO READ <ArrowDown size={13} aria-hidden="true" />
         </span>
       </div>
 

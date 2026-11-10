@@ -19,14 +19,6 @@ describe("Hero", () => {
     );
   });
 
-  it("shows a live clock in the profile's time zone", () => {
-    const { container } = render(<Hero profile={profile} pageCount={6} />);
-    const clock = container.querySelector(".live-clock");
-
-    expect(clock).toHaveTextContent(/LOCAL TIME · \d{2}:\d{2}:\d{2} IST/);
-    expect(clock).toHaveAttribute("aria-hidden", "true");
-  });
-
   it("keeps the decorative layers out of the accessibility tree", () => {
     const { container } = render(<Hero profile={profile} pageCount={6} />);
 

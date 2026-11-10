@@ -10,7 +10,7 @@ const ZOOM_END = 0.72;
 const INK_START = 0.52;
 const INK_FULL = 0.8;
 const IMPACT_AT = 0.47; // impact frames fire as the camera locks on, just before the ink
-const IMPACT_MS = 420; // the frames play in ~260ms; the shake settles by here
+const IMPACT_MS = 760; // the frames play in ~260ms; the shake settles by here
 const HUD_IN = [0.02, 0.08];
 const HUD_OUT = [0.5, 0.62];
 

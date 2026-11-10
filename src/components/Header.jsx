@@ -76,7 +76,6 @@ export function Header({ profile, sections }) {
   const toggleRef = useRef(null);
   const navRef = useRef(null);
   const inkRef = useRef(null);
-  const [firstInitial, secondInitial] = profile.initials;
   const activeId = useActiveSection(sections.map((section) => section.id));
 
   // Slide the ink bar under the active link (desktop nav only; hidden by CSS otherwise).
@@ -126,10 +125,13 @@ export function Header({ profile, sections }) {
         .join(" ")}
     >
       <a className="wordmark" href="#top" aria-label={`${profile.name} home`}>
-        <span className="wordmark__icon" aria-hidden="true">
-          {firstInitial}
-          <span>{secondInitial}</span>
-        </span>
+        <svg className="wordmark__logo" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <rect className="wordmark__logo-shadow" x="6" y="6" width="32" height="32" />
+          <rect className="wordmark__logo-tile" x="1.5" y="1.5" width="32" height="32" />
+          <path className="wordmark__logo-n" d="M8.5 26.5v-18l9 12.5v-12.5" />
+          <path className="wordmark__logo-m" d="M17.5 26.5v-9l4.5 6 4.5-6v9" />
+          <circle className="wordmark__logo-dot" cx="27" cy="9.5" r="2.2" />
+        </svg>
         <span className="wordmark__label">
           {profile.name}
           <br />
