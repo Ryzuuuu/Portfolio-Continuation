@@ -505,3 +505,39 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ─── Figures side by side on wide screens ──────────────────────────────── */
+@media (min-width: 1100px) {
+  .project-figures { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; align-items: stretch; }
+  .project-figures .reveal, .project-figure { height: 100%; }
+  .project-figure { display: flex; flex-direction: column; }
+  .project-figure__note { margin-top: auto; }
+  .project-figure .store, .project-figure .bridge { grid-template-columns: minmax(0, 1fr); }
+  .project-figure .store__panel, .project-figure .bridge__panel { border-top: 1px solid var(--rule); border-left: 0; }
+  .project-figure .bridge__controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; }
+  .project-figure .bridge__drawing { font-size: 15px; }
+}
+
+/* ─── Header: logo and nav ──────────────────────────────────────────────── */
+.wordmark__logo { flex: none; width: 42px; height: 42px; overflow: visible; }
+.wordmark__logo-shadow { fill: var(--red); transition: transform .35s var(--ease-out); }
+.wordmark__logo-tile { fill: var(--ink); stroke: var(--ink); stroke-width: 1.5; }
+.wordmark__logo-n, .wordmark__logo-m { fill: none; stroke-width: 3.2; stroke-linecap: square; stroke-linejoin: miter; }
+.wordmark__logo-n { stroke: var(--paper); }
+.wordmark__logo-m { stroke: var(--red); }
+.wordmark__logo-dot { fill: var(--yellow); }
+.wordmark:hover .wordmark__logo-shadow { transform: translate(2px, 2px); }
+.wordmark__label { font-weight: 700; letter-spacing: -.01em; }
+@media (min-width: 901px) {
+  .site-nav a:not(.nav-availability) { font-family: "Space Grotesk", sans-serif; font-size: 13.5px; font-weight: 600; letter-spacing: .02em; }
+  .site-nav a:not(.nav-availability) span { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--red-text); vertical-align: super; margin-left: 2px; }
+  .site-nav a:not(.nav-availability):hover { color: var(--red-text); }
+}
+
+/* ─── Hero: let the impact glyph linger ─────────────────────────────────── */
+.impact__glyph { animation-duration: .7s !important; }
+
+/* ─── Closing band: a flat ink strip with outlined type ─────────────────── */
+.marquee { margin: 0; transform: none; background: var(--art-ink); color: var(--art-paper); border-top: 2px solid var(--red); border-bottom: 2px solid var(--red); }
+.marquee__track > span { gap: 34px; padding: 22px 17px; font-size: clamp(22px, 3vw, 40px); font-weight: 700; letter-spacing: -.01em; color: transparent; -webkit-text-stroke: 1px var(--art-paper); }
+.marquee__track svg { color: var(--red); width: 26px; height: 26px; }
