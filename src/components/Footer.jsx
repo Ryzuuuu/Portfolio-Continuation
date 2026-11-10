@@ -21,7 +21,7 @@ export function Footer({ profile }) {
           <span>.</span>
         </a>
         <span className="mono">{profile.name.toUpperCase()} · MADE WITH CURIOSITY</span>
-        <LiveClock timeZone={profile.timeZone} zoneLabel={profile.timeZoneLabel} camera="KOLKATA" />
+        <LiveClock timeZone={profile.timeZone} zoneLabel={profile.timeZoneLabel} label="KOLKATA" />
         <a className="back-top mono" href="#top">
           BACK TO TOP <ArrowUp size={14} aria-hidden="true" />
         </a>

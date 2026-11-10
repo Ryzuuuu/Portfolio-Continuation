@@ -4,8 +4,6 @@ import { useRef } from "react";
 import { usePointerTilt } from "../hooks/usePointerTilt.js";
 import { pad2 } from "../lib/format.js";
 import { profileShape } from "../lib/propTypes.js";
-import { DetectionOverlay } from "./hero/DetectionOverlay.jsx";
-import { ScrambleText } from "./hero/ScrambleText.jsx";
 import { SpeedLines } from "./hero/SpeedLines.jsx";
 import { LiveClock } from "./LiveClock.jsx";
 import { MangaPortrait } from "./MangaPortrait.jsx";
@@ -31,7 +29,7 @@ export function Hero({ profile, pageCount }) {
       <div className="hero__grid">
         <div className="hero__copy">
           <p className="eyebrow">
-            <span className="eyebrow__line" /> <ScrambleText text={profile.focus} delay={300} />
+            <span className="eyebrow__line" /> {profile.focus}
           </p>
           {/* Each line rises out of its own slot; the spaces keep the accessible name readable. */}
           <h1 id="hero-title" className="hero__title">
@@ -106,9 +104,7 @@ export function Hero({ profile, pageCount }) {
             VISION.
           </div>
           <div className="hero__tilt">
-            <MangaPortrait>
-              <DetectionOverlay />
-            </MangaPortrait>
+            <MangaPortrait />
           </div>
           <span className="hero__vertical-label mono">VOL. 01 — HUMAN × MACHINE</span>
           <span className="hero__scribble" aria-hidden="true">

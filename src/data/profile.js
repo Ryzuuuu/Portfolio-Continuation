@@ -2,7 +2,7 @@
 // "https://yourdomain.com" (no trailing slash). It feeds the canonical link, Open Graph and
 // Twitter URLs, JSON-LD, robots.txt and sitemap.xml at build time. While it's empty,
 // `npm run build` warns and leaves the tags that need an absolute URL out.
-export const SITE_URL = "";
+export const SITE_URL = "https://neelabja-portfolio.pages.dev";
 
 export const profile = {
   name: "Neelabja Mukhopadhyay",
@@ -11,7 +11,7 @@ export const profile = {
   tagline: "AI/ML ENGINEER · BUILDER",
   focus: "AI/ML ENGINEER · PYTHON BACKEND · COMPUTER VISION",
   location: "Kolkata, India",
-  // Drives the live CCTV-style clock in the hero.
+  // Drives the live clock in the hero.
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",
   edition: "PORTFOLIO / 2026",

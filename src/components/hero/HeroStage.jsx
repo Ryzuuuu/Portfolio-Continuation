@@ -31,23 +31,6 @@ export function HeroStage({ profile, pageCount }) {
         </svg>
 
         <div className="zoom-fx" aria-hidden="true">
-          {/* A camera HUD while the zoom runs, echoing the hero's CCTV clock. */}
-          <div className="zoom-fx__hud">
-            <i className="zoom-fx__corner zoom-fx__corner--tl" />
-            <i className="zoom-fx__corner zoom-fx__corner--tr" />
-            <i className="zoom-fx__corner zoom-fx__corner--bl" />
-            <i className="zoom-fx__corner zoom-fx__corner--br" />
-            <span className="zoom-fx__rec mono">
-              <i /> REC
-            </span>
-            <span className="zoom-fx__readout mono">
-              CAM 01 · ZOOM <b data-zoom-readout>×1.0</b>
-            </span>
-            <span className="zoom-fx__target mono">
-              TARGET · EYES <b>LOCKED</b>
-            </span>
-            <span className="zoom-fx__reticle" />
-          </div>
           {/* Impact frames: a ~quarter-second burst of manga "impact" frames as the camera
               locks onto the eyes (timed and positioned by useEyeZoom). */}
           <div className="impact">
@@ -58,12 +41,6 @@ export function HeroStage({ profile, pageCount }) {
               <path d={IMPACT_INK} />
             </svg>
             <span className="impact__glyph">見</span>
-            <span className="impact__eye impact__eye--left">
-              <b className="mono">EYE_L 0.99</b>
-            </span>
-            <span className="impact__eye impact__eye--right">
-              <b className="mono">EYE_R 0.99</b>
-            </span>
           </div>
           <svg className="zoom-fx__ink" focusable="false">
             <circle data-ink-eye="left" r="0" />

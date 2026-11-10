@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 
-/** A CCTV-style timestamp in the given time zone, ticking on the second boundary. */
-export function LiveClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
+/** The local time in the given time zone, ticking on the second boundary. */
+export function LiveClock({ timeZone, zoneLabel, label = "LOCAL TIME" }) {
   const [now, setNow] = useState(() => new Date());
   const format = useMemo(
     () =>
@@ -34,8 +34,7 @@ export function LiveClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
 
   return (
     <span className="live-clock" aria-hidden="true">
-      <i />
-      {camera} · <time dateTime={now.toISOString()}>{format.format(now)}</time> {zoneLabel}
+      {label} · <time dateTime={now.toISOString()}>{format.format(now)}</time> {zoneLabel}
     </span>
   );
 }
@@ -43,5 +42,5 @@ export function LiveClock({ timeZone, zoneLabel, camera = "CAM 01" }) {
 LiveClock.propTypes = {
   timeZone: PropTypes.string.isRequired,
   zoneLabel: PropTypes.string.isRequired,
-  camera: PropTypes.string,
+  label: PropTypes.string,
 };

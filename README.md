@@ -4,8 +4,8 @@ A responsive, manga-inspired portfolio for AI/ML engineer Neelabja Mukhopadhyay,
 
 ## What's on the page
 
-- **Hero**: a manga splash page seen through a camera. Headline lines rise out of slots, speed lines and a ジーッ sound effect frame the portrait, a detection box locks onto the face, and a live CCTV clock ticks in Kolkata time.
-- **The first scroll**: the hero pins while the camera zooms into the character's eyes. Manga impact frames flash as it locks on, ink blooms out of both eyes, and then lifts to reveal the next section. Pausing halfway finishes the move in the direction you were scrolling.
+- **Hero**: a manga splash page. Headline lines rise out of slots, speed lines and a ジーッ sound effect frame the portrait, and a live clock shows Kolkata time.
+- **The first scroll**: the hero pins while the view zooms into the character's eyes. Manga impact frames flash as it locks on, ink blooms out of both eyes, and then lifts to reveal the next section. Pausing halfway finishes the move in the direction you were scrolling.
 - **Sections**: kanji chapter titles, headings that rise line by line with hand-drawn doodles, counting stats, tilting project cards, a timeline that fills as you read, and a marquee that speeds up with your scrolling.
 - **Light and dark themes**: follows the system until you pick one, remembers the choice, and switches with an iris wipe.
 - **Accessibility**: everything is keyboard-reachable with visible focus, colours meet WCAG AA, and with reduced motion on, every animation (the scroll zoom included) is switched off.
@@ -45,14 +45,14 @@ The site renders without any configuration. The API also boots with no `.env` at
 
 Server variables live in `.env` (git-ignored); `.env.example` documents them. Vite variables are read at build time.
 
-| Variable               | Default                        | Purpose                                                                                                                                          |
-| ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PORT`                 | `5000`                         | API port                                                                                                                                         |
-| `CLIENT_ORIGIN`        | local Vite dev/preview origins | Comma-separated CORS allow-list. Set to your site's origin(s) in production.                                                                     |
-| `TRUST_PROXY`          | off                            | Number of reverse proxies in front of the API (usually `1` on Render, Railway, Fly.io, or behind Nginx), so rate limiting sees real visitor IPs. |
-| `MONGODB_URI`          | unset                          | Optional backup store for messages                                                                                                               |
-| `VITE_API_BASE_URL`         | unset (same origin)            | Build-time only. Set when the API is hosted on a different origin than the site, e.g. `https://api.yourdomain.com`. |
-| `VITE_WEB3FORMS_ACCESS_KEY` | unset                          | Public Web3Forms key used by the browser to send contact email. Set in Cloudflare Pages build variables.          |
+| Variable                    | Default                        | Purpose                                                                                                                                          |
+| --------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                      | `5000`                         | API port                                                                                                                                         |
+| `CLIENT_ORIGIN`             | local Vite dev/preview origins | Comma-separated CORS allow-list. Set to your site's origin(s) in production.                                                                     |
+| `TRUST_PROXY`               | off                            | Number of reverse proxies in front of the API (usually `1` on Render, Railway, Fly.io, or behind Nginx), so rate limiting sees real visitor IPs. |
+| `MONGODB_URI`               | unset                          | Optional backup store for messages                                                                                                               |
+| `VITE_API_BASE_URL`         | unset (same origin)            | Build-time only. Set when the API is hosted on a different origin than the site, e.g. `https://api.yourdomain.com`.                              |
+| `VITE_WEB3FORMS_ACCESS_KEY` | unset                          | Public Web3Forms key used by the browser to send contact email. Set in Cloudflare Pages build variables.                                         |
 
 ## Web3Forms setup
 
@@ -101,8 +101,7 @@ src/
     experience.js                  timeline, education, certifications
     skills.js                      toolbox pills
   components/                      one file per section and building block (+ __tests__/)
-    hero/                          HeroStage (scroll zoom + impact frames), DetectionOverlay,
-                                   ScrambleText, SpeedLines
+    hero/                          HeroStage (scroll zoom + impact frames), SpeedLines
   hooks/
     useEyeZoom.js                  the first-scroll zoom, ink and impact-frame timing
     useTheme.js                    light/dark theme, persistence, iris-wipe transition
