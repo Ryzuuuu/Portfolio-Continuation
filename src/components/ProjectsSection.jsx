@@ -1,11 +1,30 @@
 import PropTypes from "prop-types";
 import { ArrowDownRight } from "lucide-react";
+import { pad2 } from "../lib/format.js";
 import { projectShape, sectionShape } from "../lib/propTypes.js";
 import { Doodle } from "./Doodle.jsx";
+import { BridgeFigure } from "./figures/BridgeFigure.jsx";
+import { StoreFigure } from "./figures/StoreFigure.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
 import { ProjectCard } from "./ProjectCard.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
+
+// A small working model of each project, shown under the cards.
+const FIGURES = [
+  {
+    id: "storesight",
+    title: "STORESIGHT / THE EVENT MODEL, PLAYED BACK",
+    note: "Synthetic visitors on an invented floor plan — not footage or store data.",
+    Component: StoreFigure,
+  },
+  {
+    id: "parabridge",
+    title: "PARABRIDGE / PARAMETERS IN, GEOMETRY OUT",
+    note: "A simplified section at a pier, redrawn from four parameters — not the CAD output.",
+    Component: BridgeFigure,
+  },
+];
 
 export function ProjectsSection({ section, projects }) {
   return (
@@ -34,6 +53,22 @@ export function ProjectsSection({ section, projects }) {
       <div className="project-grid">
         {projects.map((project, index) => (
           <ProjectCard key={project.id} project={project} index={index} total={projects.length} />
+        ))}
+      </div>
+      <div className="project-figures">
+        {FIGURES.map(({ id, title, note, Component }, index) => (
+          <Reveal key={id}>
+            <figure className={`project-figure project-figure--${id}`}>
+              <figcaption className="mono">
+                <span>
+                  FIG. {pad2(index + 1)} — {title}
+                </span>
+                <span>TRY IT</span>
+              </figcaption>
+              <Component />
+              <p className="project-figure__note">{note}</p>
+            </figure>
+          </Reveal>
         ))}
       </div>
       <Reveal className="work__foot">
