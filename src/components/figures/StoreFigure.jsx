@@ -4,6 +4,7 @@ import { formatClock, formatPercent } from "../../lib/format.js";
 import { prefersReducedMotion } from "../../lib/motion.js";
 import { createStoreSim, snapshotStoreSim, stepStoreSim, STORE } from "../../lib/storeSim.js";
 import { Icon } from "../Icon.jsx";
+import { SakugaButton } from "../Sakuga.jsx";
 
 const UNIT = 10; // SVG units per floor unit
 const PREWARM_SECONDS = 75; // the store opens mid-afternoon, not empty
@@ -151,17 +152,13 @@ export function StoreFigure() {
         </dl>
 
         <div className="figure__actions">
-          <button
-            className="chip-button"
-            type="button"
-            onClick={() => setPlaying((value) => !value)}
-          >
+          <SakugaButton className="chip-button" onClick={() => setPlaying((value) => !value)}>
             <Icon name={playing ? "pause" : "play"} size={14} />
             {playing ? "Pause" : "Play"}
-          </button>
-          <button className="chip-button" type="button" onClick={handleReset}>
+          </SakugaButton>
+          <SakugaButton className="chip-button" variant="secondary" onClick={handleReset}>
             <Icon name="reset" size={14} /> Reset
-          </button>
+          </SakugaButton>
         </div>
       </div>
     </div>

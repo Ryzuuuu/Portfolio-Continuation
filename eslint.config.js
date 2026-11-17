@@ -5,7 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist/", "coverage/"] },
+  { ignores: ["dist/", "coverage/", "public/sakuga-vfx/"] },
   js.configs.recommended,
   {
     files: ["src/**/*.{js,jsx}"],

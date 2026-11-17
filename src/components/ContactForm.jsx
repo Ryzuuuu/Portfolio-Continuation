@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { sendContactEmail, submitContact } from "../lib/api.js";
 import {
   CONTACT_FIELDS,
@@ -7,6 +7,7 @@ import {
   validateContact,
   validateContactField,
 } from "../lib/contact.js";
+import { SakugaButton, SakugaToast } from "./Sakuga.jsx";
 
 const FIELD_LABELS = {
   name: "YOUR NAME",
@@ -18,6 +19,8 @@ export function ContactForm() {
   const [status, setStatus] = useState({ state: "idle", message: "" });
   const [errors, setErrors] = useState({});
   const sending = status.state === "sending";
+  const submitRef = useRef(null);
+  const toastRef = useRef(null);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -41,6 +44,8 @@ export function ContactForm() {
       await sendContactEmail(payload);
       setStatus({ state: "success", message: "Message sent. Thanks for reaching out!" });
       form.reset();
+      submitRef.current?.done();
+      toastRef.current?.show("Message sent. Thanks!");
     } catch (error) {
       setErrors(error.fields ?? {});
       setStatus({ state: "error", message: error.message });
@@ -117,9 +122,9 @@ export function ContactForm() {
         <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <button className="submit-button" type="submit" aria-disabled={sending || undefined}>
+      <SakugaButton ref={submitRef} className="submit-button" type="submit" busy={sending}>
         {sending ? "SENDING..." : "SEND THE MESSAGE"} <ArrowUpRight size={18} aria-hidden="true" />
-      </button>
+      </SakugaButton>
       {/* Always rendered so screen readers pick up changes to this live region. */}
       <p className={`form-feedback form-feedback--${status.state}`} role="status">
         {status.message}
@@ -133,6 +138,7 @@ export function ContactForm() {
           <small className="mono">SENT</small>
         </span>
       )}
+      <SakugaToast ref={toastRef} />
     </form>
   );
 }

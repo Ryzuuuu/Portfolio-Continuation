@@ -11,6 +11,7 @@ import {
 import { useMediaQuery } from "../../hooks/useMediaQuery.js";
 import { formatMetres } from "../../lib/format.js";
 import { Icon } from "../Icon.jsx";
+import { SakugaButton, SakugaSlider } from "../Sakuga.jsx";
 
 // One fixed drawing scale, chosen so the largest section the sliders allow still fits.
 // Nothing rescales as you drag: the bridge itself grows and shrinks.
@@ -344,16 +345,17 @@ export function BridgeFigure() {
               <output className="mono" htmlFor={`${id}-${key}`}>
                 {formatValue(unit, params[key])}
               </output>
-              <input
+              <SakugaSlider
                 id={`${id}-${key}`}
-                type="range"
+                label={label}
                 min={min}
                 max={max}
                 step={step}
                 value={params[key]}
-                aria-valuetext={formatValue(unit, params[key])}
-                style={{ "--fill": `${((params[key] - min) / (max - min)) * 100}%` }}
-                onChange={(event) => handleChange(key, event.target.value)}
+                scale={unit === "mm" ? 0.001 : 1}
+                unit={unit === "mm" ? " m" : ""}
+                valueText={formatValue(unit, params[key])}
+                onChange={(value) => handleChange(key, value)}
               />
             </div>
           ))}
@@ -380,14 +382,14 @@ export function BridgeFigure() {
         </p>
 
         <div className="figure__actions">
-          <button
+          <SakugaButton
             className="chip-button"
-            type="button"
+            variant="secondary"
             disabled={isDefault}
             onClick={() => setParams(BRIDGE_DEFAULTS)}
           >
             <Icon name="reset" size={14} /> Reset
-          </button>
+          </SakugaButton>
         </div>
       </div>
     </div>
