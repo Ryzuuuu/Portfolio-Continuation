@@ -739,4 +739,64 @@ sakuga-toggle.sakuga-toggle {
   flex-wrap: wrap;
   gap: 10px;
 }
-.skill-tabs sakuga-tabs { zoom: 0.8; }
+.skill-tabs sakuga-tabs {
+  zoom: 0.8;
+}
+
+/* ─── Header: the availability button ───────────────────────────────────── */
+/* Fixed art colours (yellow, ink, coral) so it reads the same in both themes. */
+.site-nav .nav-availability {
+  gap: 9px;
+  padding: 10px 16px 10px 12px;
+  border: 2px solid var(--art-ink);
+  background: var(--yellow);
+  color: var(--art-ink);
+  box-shadow: 4px 4px 0 var(--red);
+  font:
+    800 11px/1 "Unbounded",
+    "Space Grotesk",
+    sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition:
+    transform 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+.site-nav .nav-availability:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--red);
+  color: var(--art-ink);
+}
+.site-nav .nav-availability:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--red);
+}
+.nav-availability__star {
+  display: inline-block;
+  color: var(--red);
+  font-size: 16px;
+  line-height: 0;
+  animation: star-spin 6s linear infinite;
+}
+.nav-availability:hover .nav-availability__star {
+  animation-duration: 1.2s;
+}
+@keyframes star-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Hero: the focus line ──────────────────────────────────────────────── */
+.hero .eyebrow {
+  font:
+    600 12px/1.4 "Unbounded",
+    "Space Grotesk",
+    sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+[data-theme="dark"] .hero .eyebrow {
+  color: var(--ink);
+}
+.site-nav .nav-availability .nav-availability__text { color: var(--art-ink); font: inherit; letter-spacing: inherit; vertical-align: baseline; margin: 0; }

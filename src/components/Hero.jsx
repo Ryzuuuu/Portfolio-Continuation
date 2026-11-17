@@ -15,17 +15,9 @@ export function Hero({ profile, pageCount }) {
 
   return (
     <section className="hero page-pad" aria-labelledby="hero-title" ref={heroRef}>
-      <div className="hero__meta mono">
-        <span>
-          {location} · {profile.edition}
-        </span>
-      </div>
-
       <div className="hero__grid">
         <div className="hero__copy">
-          <p className="eyebrow">
-            <span className="eyebrow__line" /> {profile.focus}
-          </p>
+          <p className="eyebrow">{profile.focus}</p>
           {/* Each line rises out of its own slot; the spaces keep the accessible name readable. */}
           <h1 id="hero-title" className="hero__title">
             <span className="hero__line">

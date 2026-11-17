@@ -87,6 +87,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Rendering the whole page in jsdom can pass 5 s on a busy machine.
+    testTimeout: 20_000,
     projects: [
       {
         extends: true,

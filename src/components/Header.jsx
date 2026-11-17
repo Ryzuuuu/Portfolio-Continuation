@@ -155,7 +155,10 @@ export function Header({ profile, sections }) {
           </a>
         ))}
         <a className="nav-availability" href="#contact" onClick={closeMenu}>
-          <i aria-hidden="true" /> AVAILABLE FOR WORK
+          <span className="nav-availability__star" aria-hidden="true">
+            ✳
+          </span>
+          <span className="nav-availability__text">Available for work</span>
         </a>
         <span className="site-nav__ink" ref={inkRef} aria-hidden="true" />
       </nav>
