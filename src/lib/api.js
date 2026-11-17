@@ -55,6 +55,8 @@ export async function sendContactEmail(payload) {
         email: payload.email,
         message: payload.message,
         subject: `New portfolio message from ${payload.name}`,
+        ...(payload.topic && { topic: payload.topic }),
+        ...(payload.rating && { site_rating: `${payload.rating} / 5` }),
         from_name: "Portfolio contact form",
         replyto: payload.email,
       }),

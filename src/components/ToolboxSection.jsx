@@ -1,11 +1,13 @@
 import PropTypes from "prop-types";
 import { ArrowUpRight, Asterisk } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { skillAreas } from "../data/skills.js";
 import { useVelocityMarquee } from "../hooks/useVelocityMarquee.js";
 import { sectionShape } from "../lib/propTypes.js";
 import { Doodle } from "./Doodle.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
 import { Reveal } from "./Reveal.jsx";
+import { SakugaTabs } from "./Sakuga.jsx";
 import { SectionKicker } from "./SectionKicker.jsx";
 
 const MARQUEE_REPEATS = 4;
@@ -13,6 +15,8 @@ const MARQUEE_REPEATS = 4;
 export function ToolboxSection({ section, skills }) {
   const marqueeRef = useRef(null);
   useVelocityMarquee(marqueeRef);
+  const [area, setArea] = useState("all");
+  const shown = area === "all" ? skills : skillAreas.find((item) => item.id === area).items;
 
   return (
     <section className="toolbox section-pad" id={section.id} aria-labelledby="toolbox-title">
@@ -37,8 +41,18 @@ export function ToolboxSection({ section, skills }) {
             Python and backend systems are my home base. I work across ML, computer vision, data,
             cloud, and web to take ideas from experiment to dependable service.
           </p>
-          <ul className="skill-list" aria-label="Skills">
-            {skills.map((skill, index) => (
+          <div className="skill-tabs">
+            <SakugaTabs label="Skill areas" value={area} onChange={setArea}>
+              <option value="all">All</option>
+              {skillAreas.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </SakugaTabs>
+          </div>
+          <ul className="skill-list" aria-label="Skills" aria-live="polite">
+            {shown.map((skill, index) => (
               <li className="skill-pill" key={skill} style={{ "--i": index }}>
                 <i aria-hidden="true" />
                 {skill}

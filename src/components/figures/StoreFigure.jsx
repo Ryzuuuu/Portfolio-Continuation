@@ -4,7 +4,7 @@ import { formatClock, formatPercent } from "../../lib/format.js";
 import { prefersReducedMotion } from "../../lib/motion.js";
 import { createStoreSim, snapshotStoreSim, stepStoreSim, STORE } from "../../lib/storeSim.js";
 import { Icon } from "../Icon.jsx";
-import { SakugaButton } from "../Sakuga.jsx";
+import { SakugaButton, SakugaCheckbox } from "../Sakuga.jsx";
 
 const UNIT = 10; // SVG units per floor unit
 const PREWARM_SECONDS = 75; // the store opens mid-afternoon, not empty
@@ -32,6 +32,7 @@ export function StoreFigure() {
   const simRef = useRef(null);
   const inView = useInView(rootRef, "160px");
   const [playing, setPlaying] = useState(() => !prefersReducedMotion());
+  const [trails, setTrails] = useState(true);
   // The store is seeded, so this first frame matches the one the loop starts from.
   const [view, setView] = useState(() => snapshotStoreSim(openStore()));
   const running = playing && inView;
@@ -109,7 +110,7 @@ export function StoreFigure() {
 
         {visitors.map((visitor) => (
           <g key={visitor.id}>
-            <polyline className="store__trail" points={points(visitor.trail)} />
+            {trails && <polyline className="store__trail" points={points(visitor.trail)} />}
             <circle
               className={visitor.dwelling ? "store__visitor is-dwelling" : "store__visitor"}
               cx={(visitor.x * UNIT).toFixed(1)}
@@ -150,6 +151,10 @@ export function StoreFigure() {
             <dd className="mono">{formatClock(time)}</dd>
           </div>
         </dl>
+
+        <SakugaCheckbox checked={trails} onChange={setTrails}>
+          Show trails
+        </SakugaCheckbox>
 
         <div className="figure__actions">
           <SakugaButton className="chip-button" onClick={() => setPlaying((value) => !value)}>

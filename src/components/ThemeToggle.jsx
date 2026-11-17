@@ -1,15 +1,14 @@
+import PropTypes from "prop-types";
 import { useTheme } from "../hooks/useTheme.js";
+import { SakugaToggle } from "./Sakuga.jsx";
 
 const RAY_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
 /** A sun that eclipses into a crescent moon. */
-export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
-
+function SunMoonButton({ isDark, onToggle }) {
   function handleClick(event) {
     const bounds = event.currentTarget.getBoundingClientRect();
-    toggleTheme({ x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 });
+    onToggle({ x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 });
   }
 
   return (
@@ -53,5 +52,30 @@ export function ThemeToggle() {
         </g>
       </svg>
     </button>
+  );
+}
+
+SunMoonButton.propTypes = {
+  isDark: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
+
+/** The theme switch: Sakuga's drawn toggle once it has loaded, the sun/moon button before. */
+export function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+
+  function handleFlip(_checked, event) {
+    const bounds = event.target.getBoundingClientRect();
+    toggleTheme({ x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 });
+  }
+
+  return (
+    <SakugaToggle
+      label="Dark mode"
+      checked={isDark}
+      onChange={handleFlip}
+      fallback={<SunMoonButton isDark={isDark} onToggle={toggleTheme} />}
+    />
   );
 }

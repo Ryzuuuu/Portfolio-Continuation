@@ -5,6 +5,7 @@ import { projectShape, sectionShape } from "../lib/propTypes.js";
 import { Doodle } from "./Doodle.jsx";
 import { BridgeFigure } from "./figures/BridgeFigure.jsx";
 import { StoreFigure } from "./figures/StoreFigure.jsx";
+import { SakugaTooltip } from "./Sakuga.jsx";
 import { HeadingLine } from "./HeadingLine.jsx";
 import { ProjectCard } from "./ProjectCard.jsx";
 import { Reveal } from "./Reveal.jsx";
@@ -16,12 +17,14 @@ const FIGURES = [
     id: "storesight",
     title: "STORESIGHT / THE EVENT MODEL, PLAYED BACK",
     note: "Synthetic visitors on an invented floor plan — not footage or store data.",
+    hint: "Pause, reset or hide the trails. The funnel follows the visitors.",
     Component: StoreFigure,
   },
   {
     id: "parabridge",
     title: "PARABRIDGE / PARAMETERS IN, GEOMETRY OUT",
     note: "A simplified section at a pier, redrawn from four parameters — not the CAD output.",
+    hint: "Drag a slider fast. The deck and pier cap re-derive as you go.",
     Component: BridgeFigure,
   },
 ];
@@ -56,14 +59,14 @@ export function ProjectsSection({ section, projects }) {
         ))}
       </div>
       <div className="project-figures">
-        {FIGURES.map(({ id, title, note, Component }, index) => (
+        {FIGURES.map(({ id, title, note, hint, Component }, index) => (
           <Reveal key={id}>
             <figure className={`project-figure project-figure--${id}`}>
               <figcaption className="mono">
                 <span>
                   FIG. {pad2(index + 1)} — {title}
                 </span>
-                <span>TRY IT</span>
+                <SakugaTooltip text={hint} label={`How to use figure ${index + 1}`} />
               </figcaption>
               <Component />
               <p className="project-figure__note">{note}</p>

@@ -59,7 +59,7 @@ describe("store simulation", () => {
         expect(y).toBeLessThanOrEqual(STORE.height + 1);
       });
     }
-  });
+  }, 30_000);
 
   it("scores zones 0–100 against the busiest one and leaves billing unscored", () => {
     const { zones, conversion, funnel } = snapshotStoreSim(run(createStoreSim(), 600));

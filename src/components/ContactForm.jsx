@@ -7,7 +7,14 @@ import {
   validateContact,
   validateContactField,
 } from "../lib/contact.js";
-import { SakugaButton, SakugaToast } from "./Sakuga.jsx";
+import {
+  SakugaButton,
+  SakugaInput,
+  SakugaProgress,
+  SakugaRadio,
+  SakugaRating,
+  SakugaToast,
+} from "./Sakuga.jsx";
 
 const FIELD_LABELS = {
   name: "YOUR NAME",
@@ -21,6 +28,7 @@ export function ContactForm() {
   const sending = status.state === "sending";
   const submitRef = useRef(null);
   const toastRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -39,9 +47,12 @@ export function ContactForm() {
     }
 
     setStatus({ state: "sending", message: "" });
+    setProgress(0.15);
     try {
       await submitContact(payload);
+      setProgress(0.6);
       await sendContactEmail(payload);
+      setProgress(1);
       setStatus({ state: "success", message: "Message sent. Thanks for reaching out!" });
       form.reset();
       submitRef.current?.done();
@@ -49,6 +60,7 @@ export function ContactForm() {
     } catch (error) {
       setErrors(error.fields ?? {});
       setStatus({ state: "error", message: error.message });
+      setProgress(0);
     }
   }
 
@@ -97,16 +109,18 @@ export function ContactForm() {
       </div>
 
       <label htmlFor="contact-name">{FIELD_LABELS.name}</label>
-      <input
+      <SakugaInput
         {...fieldProps("name")}
+        label={FIELD_LABELS.name}
         autoComplete="name"
         placeholder="The name I should know you by"
       />
       {fieldError("name")}
 
       <label htmlFor="contact-email">{FIELD_LABELS.email}</label>
-      <input
+      <SakugaInput
         {...fieldProps("email")}
+        label={FIELD_LABELS.email}
         type="email"
         autoComplete="email"
         placeholder="you@somewhere.com"
@@ -116,6 +130,20 @@ export function ContactForm() {
       <label htmlFor="contact-message">{FIELD_LABELS.message}</label>
       <textarea {...fieldProps("message")} placeholder="Tell me a little about it..." rows={4} />
       {fieldError("message")}
+
+      <div className="form-row">
+        <span className="form-row__label mono">WHAT IS IT ABOUT?</span>
+        <SakugaRadio name="topic" label="What is it about?" defaultValue="role">
+          <option value="role">A role</option>
+          <option value="project">A project</option>
+          <option value="hello">Just hello</option>
+        </SakugaRadio>
+      </div>
+
+      <div className="form-row">
+        <span className="form-row__label mono">RATE THE SITE (OPTIONAL)</span>
+        <SakugaRating name="rating" label="Rate the site" />
+      </div>
 
       <div className="honeypot" aria-hidden="true">
         <label htmlFor="contact-website">Leave this field empty</label>
@@ -137,6 +165,11 @@ export function ContactForm() {
           <b>済</b>
           <small className="mono">SENT</small>
         </span>
+      )}
+      {progress > 0 && (
+        <div className="form-progress">
+          <SakugaProgress label="Sending your message" value={progress} doneLabel="Sent ✓" />
+        </div>
       )}
       <SakugaToast ref={toastRef} />
     </form>

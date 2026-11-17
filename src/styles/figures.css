@@ -690,3 +690,53 @@ sakuga-button[disabled] {
   left: 24px;
   bottom: 24px;
 }
+
+/* ─── Sakuga: the rest of the controls ──────────────────────────────────── */
+/* The toggle's drawing is 150×162 with room for its splash; shown at half size here. */
+sakuga-toggle.sakuga-toggle {
+  margin: -13px -27px -14px;
+  transform: scale(0.5);
+  transform-origin: center;
+}
+.contact-form sakuga-input {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  --sk-input-width: 100%;
+}
+.form-row {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 6px;
+}
+.form-row__label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.form-progress {
+  margin-top: 18px;
+  --sk-progress-width: 100%;
+}
+.form-progress sakuga-progress {
+  display: block;
+  width: 100%;
+}
+.skill-tabs {
+  margin: 22px 0 18px;
+  overflow-x: auto;
+}
+.store__panel sakuga-checkbox,
+.sakuga-fallback-check {
+  font-size: 14px;
+}
+.project-figure > figcaption sakuga-tooltip {
+  margin-top: -60px;
+}
+.sakuga-fallback-tabs,
+.sakuga-fallback-radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.skill-tabs sakuga-tabs { zoom: 0.8; }

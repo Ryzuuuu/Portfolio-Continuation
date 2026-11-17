@@ -151,7 +151,7 @@ export function Header({ profile, sections }) {
             aria-current={activeId === section.id ? "location" : undefined}
             onClick={closeMenu}
           >
-            {section.navLabel} <span aria-hidden="true">{section.number}</span>
+            {section.navLabel}
           </a>
         ))}
         <a className="nav-availability" href="#contact" onClick={closeMenu}>

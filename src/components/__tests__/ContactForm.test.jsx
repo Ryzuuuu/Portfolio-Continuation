@@ -94,6 +94,8 @@ describe("ContactForm", () => {
       name: "Ada Lovelace",
       email: "ada@example.com",
       message: "Let's build something.",
+      topic: "role",
+      rating: "",
       website: "",
     });
     expect(fetchMock.mock.calls[1][0]).toBe("https://api.web3forms.com/submit");

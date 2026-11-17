@@ -32,7 +32,7 @@ describe("App", () => {
     sections.forEach((section) => {
       const link = within(nav).getByRole("link", { name: section.navLabel });
       expect(link).toHaveAttribute("href", `#${section.id}`);
-      expect(link).toHaveTextContent(section.number);
+      expect(link).not.toHaveTextContent(section.number);
 
       const kicker = container.querySelector(`#${section.id} .section-kicker`);
       expect(kicker).toHaveTextContent(`${section.number} — ${section.kicker}`);

@@ -90,11 +90,18 @@
   <body>
     <div id="root"></div>
     <!-- Sakuga VFX (MIT, github.com/finktheartist/sakuga-vfx): anime-style reactions for the
-         buttons, sliders and toast. Deferred classic scripts run before the module below, so
+         controls. The toggle (0.5 MB of drawn frames) is loaded once the page is idle, from main.jsx. Deferred classic scripts run before the module below, so
          the elements are defined by the time React renders. -->
     <script defer src="/sakuga-vfx/button.js"></script>
     <script defer src="/sakuga-vfx/slider.js"></script>
     <script defer src="/sakuga-vfx/toast.js"></script>
+    <script defer src="/sakuga-vfx/checkbox.js"></script>
+    <script defer src="/sakuga-vfx/radio.js"></script>
+    <script defer src="/sakuga-vfx/input.js"></script>
+    <script defer src="/sakuga-vfx/tabs.js"></script>
+    <script defer src="/sakuga-vfx/progress.js"></script>
+    <script defer src="/sakuga-vfx/rating.js"></script>
+    <script defer src="/sakuga-vfx/tooltip.js"></script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

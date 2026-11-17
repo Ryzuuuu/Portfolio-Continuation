@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { Check, Copy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { SakugaButton } from "./Sakuga.jsx";
 
 const RESET_MS = 1800;
 
@@ -8,6 +9,7 @@ const RESET_MS = 1800;
 export function CopyEmail({ email }) {
   const [state, setState] = useState("idle"); // idle | copied | failed
   const timer = useRef(0);
+  const buttonRef = useRef(null);
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -15,6 +17,7 @@ export function CopyEmail({ email }) {
     try {
       await navigator.clipboard.writeText(email);
       setState("copied");
+      buttonRef.current?.done();
     } catch {
       setState("failed");
     }
@@ -31,10 +34,11 @@ export function CopyEmail({ email }) {
 
   return (
     <>
-      <button
+      <SakugaButton
+        ref={buttonRef}
         className={`copy-email mono${state === "copied" ? " is-copied" : ""}`}
-        type="button"
-        aria-label="Copy email address"
+        variant="secondary"
+        label="Copy email address"
         onClick={handleClick}
       >
         {state === "copied" ? (
@@ -43,7 +47,7 @@ export function CopyEmail({ email }) {
           <Copy size={13} aria-hidden="true" />
         )}
         <span aria-hidden="true">{labels[state]}</span>
-      </button>
+      </SakugaButton>
       <span className="visually-hidden" aria-live="polite">
         {announcements[state]}
       </span>
